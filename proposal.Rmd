@@ -28,6 +28,25 @@ nba_social_power <- read_csv("data/nba_2016_2017_100.csv")
 - Describe the dataset you wish to explore. 
 *This includes describing the observations in the data, a general description of the variables, and how the data was originally collected (not how you found the data but how the original curator of the data collected it.)*
 
+The data set we wish to explore includes on-court performance data for NBA players in the 2016-2017 season, along with their salary, Twitter engagement, and Wikipedia traffic data. Because we are examining the relationship between player stats and the number of twitter followers, we also filtered for players who had an active twitter account, by filtering for values where TWITTER_HANDLE is not n/a. There are 100 observations. The data was originally collected from ESPN, Basketball-Reference, Twitter, Five-ThirtyEight, and Wikipedia. We assume that basketball players in the dataset were not chosen randomly because while the creators did not specify how they chose which players to include, many big name basketball players are in the dataset. We assume the creators chose the best basketball players and the rest, other random smaller name basketball players. More information about the data set can be found at this link: https://www.kaggle.com/noahgift/social-power-nba
+While the dataset has 63 variables, we chose to only use 15 by selecting stats we thought were indicative of a player’s performance and twitter followers because our research question attempts to predict the number of twitter followers. Below, we’ve listed the variable we’re planning to use and a general description of the variables: 
+
+PLAYER_NAME: Player's name (categorical)
+TEAM_ABBREVIATION: Abbreviation for the team the player is on (categorical)
+AGE: Player age (quantitative)
+W_PCT: Percentage of games played won  (quantitative)
+OFF_RATING: Player offensive rating calculated using the formula - Offensive Production Rating = (Points Produced / Individual Possessions) x OAPOW × PPG + FTM/FT * 3pt% + FG%  (quantitative)
+DEF_RATING: Player defensive rating -  Defensive Player Rating = (Players Steals*Blocks) + Opponents Differential= 1/5 of possessions - Times blown by + Deflections * OAPDW( Official Adjusted Players Defensive Withstand)  (quantitative)
+NET_RATING: Average of the offensive/defensive rating  (quantitative)
+AST_RATIO: Assists-to-turnovers ratio  (quantitative)
+REB_PCT: Total rebounds  (quantitative)
+USG_PCT: Usage percentage, an estimate of how often a player makes team plays  (quantitative)
+PIE Player impact factor, a statistic roughly measuring a player's impact on the games that they play that's used by nba.com  (quantitative)
+SALARY_MILLIONS: Salary in millions  (quantitative)
+TWITTER_FOLLOWER_COUNT_MILLIONS: Number of Twitter followers (quantitative)
+TWITTER_HANDLE: Twitter handle (categorical)
+PTS: Points scored (quantitative)
+
 ## The Data
 
 Finally, we will examine the relevant variables in the dataset after removing players without twitter handles (since social power cannot be measured):
