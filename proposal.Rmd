@@ -30,7 +30,7 @@ nba_social_power <- read_csv("data/nba_2016_2017_100.csv")
 
 ## The Data
 
-Finally, we will examine the relevant variables in the dataset:
+Finally, we will examine the relevant variables in the dataset after removing players without twitter handles (since social power cannot be measured):
 
 ```{r glimpse-nba-social-power}
 glimpse(nba_social_power) # entire dataset
