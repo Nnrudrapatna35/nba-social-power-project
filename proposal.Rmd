@@ -1,16 +1,19 @@
 ---
 subtitle: "Project Proposal"
-author: "Team Name + Name of Group Members"
+author: "Pipe It Up!: Nagaprasad Rudrapatna, Karen Deng, Jack Muraika, Anna Zolotor"
 date: "`r Sys.Date()`"
 output: pdf_document
 ---
 
 ```{r load-packages}
-# include packages as needed
+library(tidyverse)
+library(broom)
+library(stringr)
+library(knitr)
 ```
 
 ```{r load-data}
-# load the data
+nba_social_power <- read_csv("data/nba_2016_2017_100.csv")
 ```
 
 **ERASE ALL INSTRUCTIONS BEFORE SUBMITTING THE PROPOSAL**
@@ -27,4 +30,29 @@ output: pdf_document
 
 ## The Data
 
-- Use the glimpse function print a summary of the data frame at the end of your proposal.
+Finally, we will examine the relevant variables in the dataset:
+
+```{r glimpse-nba-social-power}
+glimpse(nba_social_power) # entire dataset
+
+nba_social_power_mod <- nba_social_power %>%
+  filter(TWITTER_HANDLE != "0") %>%
+  select(PLAYER_NAME, 
+         TEAM_ABBREVIATION,
+         AGE,
+         W_PCT,
+         OFF_RATING,
+         DEF_RATING,
+         NET_RATING,
+         AST_RATIO,
+         REB_PCT,
+         USG_PCT,
+         PIE,
+         SALARY_MILLIONS,
+         ACTIVE_TWITTER_LAST_YEAR,
+         TWITTER_FOLLOWER_COUNT_MILLIONS,
+         PTS) 
+
+glimpse(nba_social_power_mod) # modified dataset for analysis
+```
+
