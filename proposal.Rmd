@@ -5,21 +5,20 @@ date: "`r Sys.Date()`"
 output: pdf_document
 ---
 
-```{r load-packages}
+```{r load-packages, message = FALSE}
 library(tidyverse)
 library(broom)
 library(stringr)
 library(knitr)
 ```
 
-```{r load-data}
+```{r load-data, message = FALSE}
 nba_social_power <- read_csv("data/nba_2016_2017_100.csv")
 ```
 
 **ERASE ALL INSTRUCTIONS BEFORE SUBMITTING THE PROPOSAL**
 
 ### Project Description
-
 
 - What is the research question you wish to explore? 
 *This includes an introduction to the subject matter you’re investigating, the motivation for the for your research question (citing any relevant literature), and your hypotheses regarding the research question of interest.*
