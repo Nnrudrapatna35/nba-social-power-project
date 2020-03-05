@@ -20,12 +20,9 @@ nba_social_power <- read_csv("data/nba_2016_2017_100.csv")
 
 ### Project Description
 
-- What is the research question you wish to explore? 
-*This includes an introduction to the subject matter you’re investigating, the motivation for the for your research question (citing any relevant literature), and your hypotheses regarding the research question of interest.*
+Pipe it Up will use the Kaggle dataset “Social Power NBA,” to explore the following research question: is there a relationship between measures of athletic success (like win percentage, offensive and defensive ratings, etc.) and internet “popularity,” measured in number of twitter followers and amount of Wikipedia traffic? If we find that there is a relationship between measures of athletic success and social media popularity, we will do further analysis to figure out which of these measures are most strongly predictive of internet popularity.  Our hypothesis regarding this question is that there will be at least a weak positive correlation between higher success rates within the variables we select (which will be discussed in the following paragraph) and higher Wikipedia traffic/ more Twitter followers. We also predict that salary, points scored, and win percentage will be particularly strong predictors of internet popularity. 
 
-
-- Describe the dataset you wish to explore. 
-*This includes describing the observations in the data, a general description of the variables, and how the data was originally collected (not how you found the data but how the original curator of the data collected it.)*
+Recently, researchers from many different fields have begun using data science techniques to extract information from social media data. One 2019 journal found that academics in the United States alone have published 7548 papers that use social media data, analyzed via big data techniques, as evidence of their claims (Esfahani et. al. 2019). Our desire to explore these questions stems from the increasing relevance of social media in today’s hyper-connected world. Social media gives a platform to people’s stories and opinions, and influential people, like athletes, can have considerable sway over large segments of the population. The original creator of our Kaggle dataset, UC Davis and Northwestern professor Noah Gift, did analyses to determine what social media and internet popularity could predict. He searched for correlations between those factors and a number of response variables, including arena attendance, endorsements, salary, and NBA performance. Our team was fascinated by the statistician’s conclusions, but we wanted to take the reverse approach and determine what kinds of factors can predict the social media popularity that he claims is so important. 
 
 The data set we wish to explore includes on-court performance data for NBA players in the 2016-2017 season, along with their salary, Twitter engagement, and Wikipedia traffic data. Because we are examining the relationship between player stats and the number of twitter followers, we also filtered for players who had an active twitter account, by filtering for values where TWITTER_HANDLE is not n/a. After filtering, we have 95 observations. The data was originally collected from ESPN, Basketball-Reference, Twitter, Five-ThirtyEight, and Wikipedia. We assume that basketball players in the dataset were not chosen randomly because while the creators did not specify how they chose which players to include, many big name basketball players are in the dataset. We assume the creators chose the best basketball players and the rest, other random smaller name basketball players. However, the players in the dataset are not all from the same team and the data set includes players from 30 different teams, suggesting that at least one player is from each NBA team. While the sample was not collected randomly, there is a sufficiently large sample size and all groups are represented with no team dominating the sample, we can assume the sample is independent. The dataset has independent observations, so the number of Twitter followers of one player does not affect the number of Twitter followers of another player. The dataset also has independent groups, so the number of Twitter followers of a player from one team does not affect the number of Twitter followers of a player from another team. 
 
@@ -76,4 +73,8 @@ nba_social_power_mod <- nba_social_power %>%
 
 glimpse(nba_social_power_mod) # modified dataset for analysis
 ```
+
+### References
+
+Esfahani, H. J., Tavasoli, K., & Jabbarzadeh, A. (2019). Big data and social media: A scientometrics analysis. International Journal of Data and Network Science, 145–164. doi: 10.5267/j.ijdns.2019.2.007
 
