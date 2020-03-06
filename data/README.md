@@ -1,6 +1,6 @@
 # data
 
-The dimensions of the original dataset (`nba_social_power`) were 100 observations and 63 variables. However, we are using a reduced version of the full dataset (`nba_social_power_mod`) for analysis, which includes only 95 observations and 15 variables. The number of observations decreased because we decided to remove players who did not have Twitter handles.
+The dimensions of the original dataset (`nba_social_power`) were 100 observations and 63 variables. However, we are using a reduced version of the full dataset (`nba_social_power_mod`) for analysis, which only includes 95 observations and 15 variables. The number of observations decreased because we decided to remove players who did not have Twitter handles.
 
 Below is the data dictionary describing the 15 variables we have decided to use in our analysis.
 

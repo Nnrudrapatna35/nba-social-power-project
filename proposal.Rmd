@@ -15,23 +15,23 @@ The dataset we wish to explore includes on-court performance data for NBA player
 
 More information about the data set can be found at this link: https://www.kaggle.com/noahgift/social-power-nba
 
-While the dataset has 63 variables, we chose to only use 15 by selecting stats we thought were indicative and all-encompassing of a player’s performance and Twitter followers because our research question attempts to predict the number of Twitter followers. We ignored variables like rank because they are discrete numerical variables, and chose continuous numerical variables like percentage ratios because they are more indicative of a player's skill. Below, we’ve listed the variable we’re planning to use and a general description of the variables: 
+While the dataset has 63 variables, we chose to only use 15 by selecting stats we thought were indicative and all-encompassing of a player’s performance and Twitter followers because our research question attempts to predict the number of Twitter followers. We ignored variables like rank because they are discrete numerical variables, and chose continuous numerical variables like percentage ratios because they are more indicative of a player's skill. Below we have listed the variables we are planning to use (descriptions available in Data Dictionary): 
 
-PLAYER_NAME: Player's name (categorical)
-TEAM_ABBREVIATION: Abbreviation for the team the player is on (categorical)
-AGE: Player age (quantitative)
-W_PCT: Percentage of games played won  (quantitative)
-OFF_RATING: Player offensive rating calculated using the formula - Offensive Production Rating = (Points Produced / Individual Possessions) x OAPOW × PPG + FTM/FT * 3pt% + FG%  (quantitative)
-DEF_RATING: Player defensive rating -  Defensive Player Rating = (Players Steals*Blocks) + Opponents Differential= 1/5 of possessions - Times blown by + Deflections * OAPDW( Official Adjusted Players Defensive Withstand)  (quantitative)
-NET_RATING: Average of the offensive/defensive rating  (quantitative)
-AST_RATIO: Assists-to-turnovers ratio  (quantitative)
-REB_PCT: Total rebounds  (quantitative)
-USG_PCT: Usage percentage, an estimate of how often a player makes team plays  (quantitative)
-PIE Player impact factor, a statistic roughly measuring a player's impact on the games that they play that's used by nba.com  (quantitative)
-SALARY_MILLIONS: Salary in millions  (quantitative)
-TWITTER_FOLLOWER_COUNT_MILLIONS: Number of Twitter followers (quantitative)
-TWITTER_HANDLE: Twitter handle (categorical)
-PTS: Points scored (quantitative)
+PLAYER_NAME
+TEAM_ABBREVIATION
+AGE
+W_PCT
+OFF_RATING
+DEF_RATING
+NET_RATING
+AST_RATIO
+REB_PCT
+USG_PCT
+PIE
+SALARY_MILLIONS
+TWITTER_FOLLOWER_COUNT_MILLIONS
+TWITTER_HANDLE
+PTS
 
 ## The Data
 
@@ -46,7 +46,7 @@ library(knitr)
 nba_social_power <- read_csv("data/nba_2016_2017_100.csv")
 ```
 
-Finally, we will examine the relevant variables in the dataset after removing players without Twitter handles (since social power cannot be measured):
+Finally, we will examine the relevant variables in the dataset after removing players without Twitter handles (since social power cannot be easily measured for these players):
 
 ```{r glimpse-nba-social-power-mod}
 nba_social_power_mod <- nba_social_power %>%
