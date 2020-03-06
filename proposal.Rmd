@@ -78,7 +78,7 @@ model <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS ~ AGE + OFF_RATING + DEF_RATING + PI
 tidy(model)
 ```
 
-The linear model is: -32.916 + 0.204 * `AGE` + 0.101 * `OFF_RATING` + 0.093 * `DEF_RATING` + 36.489 * `PIE` + 1.835 * `REB_PCT` - 1.06 * `USG_PCT` + 0.144 * `SALARY_MILLIONS` + 3.131 * `W_PCT`.
+The linear model is: -36.407 + 0.205 * `AGE` + 0.103 * `OFF_RATING` + 0.092 * `DEF_RATING` + 35.618 * `PIE` + 2.125 * `REB_PCT` - 0.984 * `USG_PCT` + 0.145 * `SALARY_MILLIONS` + 3.037 * `W_PCT` + 3.472 * `ACTIVE_TWITTER_LAST_YEAR`.
 
 Now, we will look at a residual plot of observation number:
 
