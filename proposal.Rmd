@@ -13,11 +13,15 @@ Recently, researchers from many different fields have begun using data science t
 
 The dataset we wish to explore includes on-court performance data for NBA players in the 2016-2017 season, along with their salary, Twitter engagement, and Wikipedia traffic data. Because we are examining the relationship between player statistics and the number of Twitter followers, we decided to only consider players who had a Twitter account, by filtering for values where `TWITTER_HANDLE` is not 0 (NA). After filtering, we have 95 observations. 
 
-The data was originally collected from ESPN, Basketball-Reference, Twitter, Five-ThirtyEight, and Wikipedia. We assume that basketball players in the dataset were not chosen randomly because while the creators did not specify how they chose which players to include, many big name basketball players are in the dataset. We assume the creators chose the best basketball players and the rest, other random smaller name basketball players. However, the players in the dataset are not all from the same team and the data set includes players from 30 different teams, suggesting that at least one player is from each NBA team. While the sample was not collected randomly, there is a sufficiently large sample size and all groups are represented with no team dominating the sample. The dataset has independent observations, so the number of Twitter followers of one player does not affect the number of Twitter followers of another player. The dataset also has independent groups, so the number of Twitter followers of a player from one team does not affect the number of Twitter followers of a player from another team. We will examine independence after choosing the initial variables for our model.
+The data was originally collected from ESPN, Basketball-Reference, Twitter, Five-ThirtyEight, and Wikipedia. We assume that basketball players in the dataset were not chosen randomly because, while the creators did not specify how they chose which players to include, many (if not all) big name basketball players are included in the dataset. This led to us to assume the creators first chose the best basketball players and then selected "random" lesser-known (less talented) basketball players. Moreover, the players in the dataset are not all from the same team and the dataset includes at least one player from all 30 NBA teams. 
 
-More information about the data set can be found at this link: https://www.kaggle.com/noahgift/social-power-nba
+While the sample was not collected randomly, there is a sufficiently large sample size (95) and all groups are represented with no team dominating the sample; thus, the dataset has independent observations. So, the number of Twitter followers of one player does not affect the number of Twitter followers of another player. The dataset also has independent groups, so the number of Twitter followers of a player from one team does not affect the number of Twitter followers of a player from another team. 
 
-While the dataset has 63 variables, we chose to only use 15 by selecting stats we thought were indicative and all-encompassing of a player’s performance and Twitter followers because our research question attempts to predict the number of Twitter followers. We ignored variables like rank because they are discrete numerical variables, and chose continuous numerical variables like percentage ratios because they are more indicative of a player's skill. Below we have listed the variables we are planning to use (descriptions available in Data Dictionary): 
+As a note, due to the NBA's salary cap guidelines, the salaries of players on the same team influence each other; thus, we have some reservations about including `SALARY_MILLIONS` as a predictor.
+
+More information about the dataset can be found at this link: https://www.kaggle.com/noahgift/social-power-nba
+
+While the original dataset included 63 variables, we chose to only use 15 by selecting statistics we thought were indicative and all-encompassing of a player’s basketball performance and Twitter followers since our research question attempts to predict the number of Twitter followers. We ignored variables, like `RANK`, because they are discrete numerical variables and instead selected continuous numerical variables, like percentage ratios, because they are more indicative of a player's skill (and we can use more advanced statistical methods). Below we have listed the variables we are planning to use (descriptions available in Data Dictionary): 
 
 PLAYER_NAME
 TEAM_ABBREVIATION
@@ -97,6 +101,8 @@ ggplot(data = model_aug, aes(x = obs_num, y = .resid)) +
 ```
 
 It is clear, based on the plot displayed above, that there are some deviations from independence because the residuals are not "randomly" distributed.
+
+Hence, our group has discussed the possibility of excluding certain high-profile players (e.g. Lebron James) to resolve this violation of independence. We would appreciate feedback about this aspect.
 
 ### References
 
