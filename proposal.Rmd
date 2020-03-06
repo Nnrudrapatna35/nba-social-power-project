@@ -72,12 +72,31 @@ nba_social_power_mod <- nba_social_power %>%
 glimpse(nba_social_power_mod) # modified dataset for analysis
 ```
 
-Because we are concerned with independence, we will fit an initial model predicting twitter followers from the 15 variables we chose:
+Because we are concerned with satisfying the independence assumption, we will fit a multiple linear regression model predicting the number of Twitter followers based on the 15 predictor variables we chose:
 
 ```{r}
 model <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS ~ AGE + OFF_RATING + DEF_RATING + PIE + REB_PCT + USG_PCT + SALARY_MILLIONS + W_PCT + ACTIVE_TWITTER_LAST_YEAR,
             data = nba_social_power_mod)
+tidy(model)
 ```
+
+The linear model is: -32.916 + 0.204 * `AGE` + 0.101 * `OFF_RATING` + 0.093 * `DEF_RATING` + 36.489 * `PIE` + 1.835 * `REB_PCT` - 1.06 * `USG_PCT` + 0.144 * `SALARY_MILLIONS` + 3.131 * `W_PCT`.
+
+Now, we will look at a residual plot of observation number:
+
+```{r}
+model_aug <- augment(model)
+model_aug <- model_aug %>%
+  mutate(obs_num = 1:nrow(model_aug))
+
+ggplot(data = model_aug, aes(x = obs_num, y = .resid)) +
+  geom_point(alpha = 0.5) +
+  labs(x = "Observation Number",
+       y = "Residuals",
+       title = "Residuals vs. Observation Number")
+```
+
+It is clear, based on the plot displayed above, that there are some deviations from independence because the residuals are not "randomly" distributed.
 
 ### References
 
