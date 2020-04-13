@@ -5,31 +5,25 @@ date: "`r Sys.Date()`"
 output: pdf_document
 ---
 
-```{r load-packages, message = FALSE}
-library(tidyverse)
-library(broom)
-library(stringr)
-library(knitr)
-```
-
-```{r load-data, message = FALSE}
-nba_social_power <- read_csv("data/nba_2016_2017_100.csv")
-```
-
-**ERASE ALL INSTRUCTIONS BEFORE SUBMITTING THE PROPOSAL**
-
 ### Project Description
 
-Pipe it Up will use the Kaggle dataset “Social Power NBA,” to explore the following research question: is there a relationship between measures of athletic success (like win percentage, offensive and defensive ratings, etc.) and internet “popularity,” measured in number of twitter followers? If we find that there is a relationship between measures of athletic success and social media popularity, we will do further analysis to figure out which of these measures are most strongly predictive of internet popularity.  Our hypothesis regarding this question is that there will be at least a weak positive correlation between higher success rates within the variables we select (which will be discussed in the following paragraph) and more Twitter followers. We also predict that salary, points scored, and win percentage will be particularly strong predictors of Twitter popularity. 
+Pipe it Up! will use the Kaggle dataset “Social Power NBA” to explore the following research question: Is there a relationship between measures of basketball success (such as win percentage and offensive/defensive ratings) and Internet popularity, measured in the number of Twitter followers? If we find that there is a relationship between measures of basketball success and social media popularity, we plan to conduct further analysis to determine which of these measures is the best predictor of Internet popularity. Our hypothesis regarding this question is that there will be at least a weak positive correlation between basketball success (which will be discussed in the following paragraph) and the number of Twitter followers; in other words, players with relatively high offensive and defensive ratings will tend to also have more Twitter followers. We also predict that a player's salary, points scored, and win percentage will be particularly strong predictors of Twitter popularity. 
 
-Recently, researchers from many different fields have begun using data science techniques to extract information from social media data. One 2019 journal found that academics in the United States alone have published 7548 papers that use social media data, analyzed via big data techniques, as evidence of their claims (Esfahani et. al. 2019). Our desire to explore these questions stems from the increasing relevance of social media in today’s hyper-connected world. Social media gives a platform to people’s stories and opinions, and influential people, like athletes, can have considerable sway over large segments of the population. The original creator of our Kaggle dataset, UC Davis and Northwestern professor Noah Gift, did analyses to determine what social media and internet popularity could predict. He searched for correlations between those factors and a number of response variables, including arena attendance, endorsements, salary, and NBA performance. Our team was fascinated by the statistician’s conclusions, but we wanted to take the reverse approach and determine what kinds of factors can predict the social media popularity that he claims is so important. 
+Recently, researchers from many different fields have begun using data science techniques to extract information from social media data. A 2019 journal article found that scholars in the United States alone have published 7548 papers that incorporate social media data analysis (Esfahani et al., 2019). Our desire to explore this research question stems from the increasing relevance of social media in today’s hyperconnected world. Social media provides a platform for people to share stories and opinions, and influential people, especially athletes, have considerable sway over large segments of the population. Additionally, since the NBA is a star-driven league due to its small team size and worldwide recognition, social media presence is significant for basketball players. The original creator of our Kaggle dataset, UC Davis and Northwestern professor Noah Gift, conducted analyses to determine which factors relating to basketball success social media and internet popularity could accurately predict. He searched for correlation between those factors and a number of response variables, including arena attendance, endorsements, salary, and NBA performance. Our team was fascinated by the statistician’s conclusions, but we wanted to take the reverse approach and determine which factors (relating to basketball success) can predict the social media popularity that he claims is so important. 
 
-The data set we wish to explore includes on-court performance data for NBA players in the 2016-2017 season, along with their salary, Twitter engagement, and Wikipedia traffic data. Because we are examining the relationship between player stats and the number of twitter followers, we also filtered for players who had an active twitter account, by filtering for values where TWITTER_HANDLE is not n/a. After filtering, we have 95 observations. The data was originally collected from ESPN, Basketball-Reference, Twitter, Five-ThirtyEight, and Wikipedia. We assume that basketball players in the dataset were not chosen randomly because while the creators did not specify how they chose which players to include, many big name basketball players are in the dataset. We assume the creators chose the best basketball players and the rest, other random smaller name basketball players. However, the players in the dataset are not all from the same team and the data set includes players from 30 different teams, suggesting that at least one player is from each NBA team. While the sample was not collected randomly, there is a sufficiently large sample size and all groups are represented with no team dominating the sample, we can assume the sample is independent. The dataset has independent observations, so the number of Twitter followers of one player does not affect the number of Twitter followers of another player. The dataset also has independent groups, so the number of Twitter followers of a player from one team does not affect the number of Twitter followers of a player from another team. 
+The dataset we wish to explore includes on-court performance data for NBA players in the 2016-2017 season, along with their salary, Twitter engagement, and Wikipedia traffic data. Because we are examining the relationship between player statistics and the number of Twitter followers, we decided to only consider players who had a Twitter account, by filtering for values where `TWITTER_HANDLE` is not 0 (NA). After filtering, we have 95 observations. 
 
-More information about the data set can be found at this link: https://www.kaggle.com/noahgift/social-power-nba
+The data was originally collected from ESPN, Basketball-Reference, Twitter, Five-ThirtyEight, and Wikipedia. We assume that basketball players in the dataset were not chosen randomly because, while the creators did not specify how they chose which players to include, many (if not all) big name basketball players are included in the dataset. This led to us to assume the creators first chose the best basketball players and then selected "random" lesser-known (less talented) basketball players. Moreover, the players in the dataset are not all from the same team and the dataset includes at least one player from all 30 NBA teams. 
 
-While the dataset has 63 variables, we chose to only use 15 by selecting stats we thought were indicative and all-encompassing of a player’s performance and twitter followers because our research question attempts to predict the number of twitter followers. We ignored variables like rank because they are discrete numerical variables, and chose continuous numerical variables like percentage ratios because they are more indicative of a player's skill. Below, we’ve listed the variable we’re planning to use and a general description of the variables: 
+While the sample was not collected randomly, there is a sufficiently large sample size (95) and all groups are represented with no team dominating the sample; thus, the dataset has independent observations. So, the number of Twitter followers of one player does not affect the number of Twitter followers of another player. The dataset also has independent groups, so the number of Twitter followers of a player from one team does not affect the number of Twitter followers of a player from another team. 
 
+As a note, due to the NBA's salary cap guidelines, the salaries of players on the same team influence each other; thus, we have some reservations about including `SALARY_MILLIONS` as a predictor.
+
+More information about the dataset can be found at this link: https://www.kaggle.com/noahgift/social-power-nba
+
+While the original dataset included 63 variables, we chose to only use 15 by selecting statistics we thought were indicative and all-encompassing of a player’s basketball performance and Twitter followers since our research question attempts to predict the number of Twitter followers. We ignored variables, like `RANK`, because they are discrete numerical variables and instead selected continuous numerical variables, like percentage ratios, because they are more indicative of a player's skill (and we can use more advanced statistical methods). Below we have listed the variables we are planning to use (descriptions available in Data Dictionary): 
+
+<<<<<<< HEAD
 PLAYER_NAME: Player's name (categorical)
 TEAM_ABBREVIATION: Abbreviation for the team the player is on (categorical)
 AGE: Player age (quantitative)
@@ -46,14 +40,40 @@ TWITTER_FOLLOWER_COUNT_MILLIONS: Number of Twitter followers (quantitative)
 ACTIVE_TWITTER_LAST_YEAR: Whether or not the player was active (posted) on Twitter last year.
 (categorical)
 PTS: Points scored (quantitative)
+=======
+PLAYER_NAME
+TEAM_ABBREVIATION
+AGE
+W_PCT
+OFF_RATING
+DEF_RATING
+NET_RATING
+AST_RATIO
+REB_PCT
+USG_PCT
+PIE
+SALARY_MILLIONS
+TWITTER_FOLLOWER_COUNT_MILLIONS
+TWITTER_HANDLE
+PTS
+>>>>>>> 4fc25bdbce251b560f05a402e31eea7768bf7ca3
 
 ## The Data
 
-Finally, we will examine the relevant variables in the dataset after removing players without twitter handles (since social power cannot be measured):
+```{r load-packages, message = FALSE}
+library(tidyverse)
+library(broom)
+library(stringr)
+library(knitr)
+```
 
-```{r glimpse-nba-social-power}
-glimpse(nba_social_power) # entire dataset
+```{r load-data}
+nba_social_power <- read_csv("data/nba_2016_2017_100.csv")
+```
 
+Finally, we will examine the relevant variables in the dataset after removing players without Twitter handles (since social power cannot be easily measured for these players):
+
+```{r glimpse-nba-social-power-mod}
 nba_social_power_mod <- nba_social_power %>%
   filter(TWITTER_HANDLE != "0") %>%
   select(PLAYER_NAME, 
@@ -72,10 +92,37 @@ nba_social_power_mod <- nba_social_power %>%
          TWITTER_FOLLOWER_COUNT_MILLIONS,
          PTS) 
 
-glimpse(nba_social_power_mod) # modified dataset for analysis
+glimpse(nba_social_power_mod) # examine modified dataset for analysis
 ```
+
+Because we are concerned with satisfying the independence assumption, we will fit a multiple linear regression model predicting the number of Twitter followers based on the 15 predictor variables we chose:
+
+```{r}
+model <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS ~ AGE + OFF_RATING + DEF_RATING + PIE + REB_PCT + USG_PCT + SALARY_MILLIONS + W_PCT + ACTIVE_TWITTER_LAST_YEAR,
+            data = nba_social_power_mod)
+tidy(model)
+```
+
+The linear model is: -36.407 + 0.205 * `AGE` + 0.103 * `OFF_RATING` + 0.092 * `DEF_RATING` + 35.618 * `PIE` + 2.125 * `REB_PCT` - 0.984 * `USG_PCT` + 0.145 * `SALARY_MILLIONS` + 3.037 * `W_PCT` + 3.472 * `ACTIVE_TWITTER_LAST_YEAR`.
+
+Now, we will look at a residual plot of observation number:
+
+```{r}
+model_aug <- augment(model)
+model_aug <- model_aug %>%
+  mutate(obs_num = 1:nrow(model_aug))
+
+ggplot(data = model_aug, aes(x = obs_num, y = .resid)) +
+  geom_point(alpha = 0.5) +
+  labs(x = "Observation Number",
+       y = "Residuals",
+       title = "Residuals vs. Observation Number")
+```
+
+It is clear, based on the plot displayed above, that there are some deviations from independence because the residuals are not "randomly" distributed.
+
+Hence, our group has discussed the possibility of excluding certain high-profile players (e.g. Lebron James) to resolve this violation of independence. We would appreciate feedback about this aspect.
 
 ### References
 
 Esfahani, H. J., Tavasoli, K., & Jabbarzadeh, A. (2019). Big data and social media: A scientometrics analysis. International Journal of Data and Network Science, 145–164. doi: 10.5267/j.ijdns.2019.2.007
-
