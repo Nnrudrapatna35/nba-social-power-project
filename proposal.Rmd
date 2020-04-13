@@ -43,7 +43,8 @@ USG_PCT: Usage percentage, an estimate of how often a player makes team plays  (
 PIE Player impact factor, a statistic roughly measuring a player's impact on the games that they play that's used by nba.com  (quantitative)
 SALARY_MILLIONS: Salary in millions  (quantitative)
 TWITTER_FOLLOWER_COUNT_MILLIONS: Number of Twitter followers (quantitative)
-TWITTER_HANDLE: Twitter handle (categorical)
+ACTIVE_TWITTER_LAST_YEAR: Whether or not the player was active (posted) on Twitter last year.
+(categorical)
 PTS: Points scored (quantitative)
 
 ## The Data
