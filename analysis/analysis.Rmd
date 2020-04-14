@@ -262,7 +262,8 @@ First, I'll look for a relationship between win percent and twitter followers in
 ```{r}
 ggplot(nba_social_power_mod, aes(x = W_PCT, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
   geom_point() + 
-  labs(title = "Relationship Between Win Percent and Twitter Follower Count", x = "Win Percent", y = "Twitter Follower Count, in Millions")
+  labs(title = "Relationship Between Win Percent and Twitter Follower Count", 
+       x = "Win Percent", y = "Twitter Follower Count, in Millions")
 ```
 
 From the above plot, we can see that win percent and twitter follower count may have a very weak positive  orrelations. The players with significantly higher-than-average Twitter follower counts tend to have higher win percentages; however, this relationship is very weak. 
@@ -272,7 +273,8 @@ Next, I'll look at the relationship between net rating, which combines offensive
 ```{r}
 ggplot(nba_social_power_mod, aes(x = NET_RATING, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
   geom_point() + 
-  labs(title = "Relationship Between Net Rating and Twitter Follower Count", x = "Net Rating", y = "Twitter Follower Count, in Millions")
+  labs(title = "Relationship Between Net Rating and Twitter Follower Count",
+       x = "Net Rating", y = "Twitter Follower Count, in Millions")
 ```
 
 Similarly to win percent, Twitter follower count and net rating seem to have a very weak positive relationship. The players with the highest net ratings more often have higher-than-average Twitter follower counts, and more players with positive net ratings have high Twitter follower counts than those with negative net ratings. 
@@ -282,7 +284,8 @@ Next, I'll look at the relationship between assist-to-turnovers ratio and Twitte
 ```{r}
 ggplot(nba_social_power_mod, aes(x = AST_RATIO, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
   geom_point() + 
-  labs(title = "Relationship Between Assist-Turnover Ratio and Twitter Follower Count", x = "Assist-Turnover Ratio", y = "Twitter Follower Count, in Millions")
+  labs(title = "Relationship Between Assist-Turnover Ratio and Twitter Follower Count", 
+       x = "Assist-Turnover Ratio", y = "Twitter Follower Count, in Millions")
 ```
 
 There is no evident relationship between assist-turnover ratio and Twitter follower count. 
@@ -292,7 +295,8 @@ Next, I'll examine whether there is a relationship between rebound percentage an
 ```{r}
 ggplot(nba_social_power_mod, aes(x = REB_PCT, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
   geom_point() + 
-  labs(title = "Relationship Between Rebound Percentage and Twitter Follower Count", x = "Rebound Percentage", y = "Twitter Follower Count, in Millions")
+  labs(title = "Relationship Between Rebound Percentage and Twitter Follower Count",
+       x = "Rebound Percentage", y = "Twitter Follower Count, in Millions")
 ```
 
 There is no evident relationship between rebound percentage and Twitter follower count. 
@@ -302,7 +306,8 @@ Next, I'll examine whether there is a relationship between usage percentage and 
 ```{r}
 ggplot(nba_social_power_mod, aes(x = USG_PCT, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
   geom_point() + 
-  labs(title = "Relationship Between Usage Percentage and Twitter Follower Count", x = "Usage Percentage", y = "Twitter Follower Count, in Millions")
+  labs(title = "Relationship Between Usage Percentage and Twitter Follower Count",
+       x = "Usage Percentage", y = "Twitter Follower Count, in Millions")
 ```
 
 There appears to be a very weak positive correlation between usage percentage and Twitter follower count; players with a high usage percentage tend to have more Twitter followers, on average, than those with a lower usage percentage. 
@@ -312,7 +317,8 @@ Next, I'll examine whether there is a relationship between player impact factor 
 ```{r}
 ggplot(nba_social_power_mod, aes(x = PIE, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
   geom_point() + 
-  labs(title = "Relationship Between Player Impact Factor and Twitter Follower Count", x = "Player Impact Factor", y = "Twitter Follower Count, in Millions")
+  labs(title = "Relationship Between Player Impact Factor and Twitter Follower Count",
+       x = "Player Impact Factor", y = "Twitter Follower Count, in Millions")
 ```
 
 There appears to be a  somewhat positive correlation between player impact factor and Twitter follower count; players with a high player impact factor tend to have more Twitter followers, on average, than those with a lower player impact factor. 
@@ -322,7 +328,8 @@ Now, I'll look for a relationship between average points scored per game and Twi
 ```{r}
 ggplot(nba_social_power_mod, aes(x = PTS, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
   geom_point() + 
-  labs(title = "Relationship Between Avg. Points Scored and Twitter Follower Count", x = "Avg. Points Scored", y = "Twitter Follower Count, in Millions")
+  labs(title = "Relationship Between Avg. Points Scored and Twitter Follower Count",
+       x = "Avg. Points Scored", y = "Twitter Follower Count, in Millions")
 ```
 
 There appears to be a weak positive correlation between average points scored and Twitter follower count; players with higher avg. points scored tend to have more Twitter followers than those with lower avg. points scored. 
@@ -332,16 +339,58 @@ Finally, I'll look for a relationship between player salaries and points scored:
 ```{r}
 ggplot(nba_social_power_mod, aes(x = SALARY_MILLIONS, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
   geom_point() + 
-  labs(title = "Relationship Between Player Salaries and Twitter Follower Count", x = "Salary, in Millions of Dollars", y = "Twitter Follower Count, in Millions")
+  labs(title = "Relationship Between Player Salaries and Twitter Follower Count",
+       x = "Salary, in Millions of Dollars", y = "Twitter Follower Count, in Millions")
 ```
 
 There appears to be a positive correlation between salary and Twitter follower count; the players with higher salaries tend to have higher Twitter follower counts. 
 
 In sum, there appear to be weak to moderate positive correlations between Twitter follower count and win percentage, net rating, usage percentage, player impact factor, avg. points per game, and player salaries; there is no obvious relationship between Twitter follower count and assist-to-turnover ratio or rebound percentage.
 
+patchwork: multinomial logistic lecture code 
+
 ### Multivariate Data Analysis
 
-```{r}
+Now, I'll do some multivariate analysis. In this section, I am looking for predictor variables that may affect the way other predictor variables relate to the response variable. 
 
+First, I'll look to see if points scored affects the way player impact factor relates to Twitter follower count. 
+```{r}
+nba_social_power_mod1 <- nba_social_power_mod %>%
+  mutate(PTS_CAT = case_when(
+    PTS <= 15 ~ "0-15" , 
+    PTS > 15 ~ "more than 15"
+  ))
 ```
+
+```{r}
+ggplot(data = nba_social_power_mod1, aes(x = PIE, y = TWITTER_FOLLOWER_COUNT_MILLIONS, color = PTS_CAT)) +
+         geom_point() + 
+  labs(x = "Player Impact Factor", y= "Twitter Follower Count, in Millions", 
+       color = "Avg. Points Scored per Game",
+       title = "Relationship Between Pts Scored, Twitter Followers, and Player Impact Factor")
+```
+
+As we can see from the above color-coded boxplot, many of the players with the highest points scored numbers have much higher player impact factors, and player impact factor values have a weak positive correlation with Twitter follower count. This could be an opportunity for an interaction term. 
+
+
+Next, I'll try to determine whether win percentage affects the way salary relates to Twitter follower count. 
+
+```{r}
+nba_social_power_mod1 <- nba_social_power_mod %>%
+  mutate(W_PCT_CAT = case_when(
+    W_PCT <= .5 ~ "less than half" , 
+    W_PCT > .5 ~ "more than half"
+  ))
+```
+
+```{r}
+ggplot(data = nba_social_power_mod1, aes(x = SALARY_MILLIONS, y = TWITTER_FOLLOWER_COUNT_MILLIONS,color = W_PCT_CAT)) +
+         geom_point() + 
+  labs(x = "Salary, in Millions", y= "Twitter Follower Count, in Millions", 
+       color = "Proportion of Games Won",
+       title = "Relationship Between Win Percentage,
+       Twitter Followers, and Salary")
+```
+
+As we can see from the scatterplot, players with higher win percentages tend to be paid more, and high salary has a weak positive correlation with Twitter follower count. This could also be an opportunity for an interaction term. 
 
