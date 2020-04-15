@@ -16,6 +16,7 @@ library(stringr)
 library(knitr)
 library(tidyverse)
 library(gridExtra)
+library(leaps)
 ```
 
 ```{r load-data, message = FALSE}
@@ -44,23 +45,23 @@ nba_social_power_mod <- nba_social_power %>%
 
 ### Research Question and Objective
 
-The research question explored in this analysis is as follows: Is there a relationship between measures of athletic success (like win percentage, offensive and defensive ratings, etc.) and internet “popularity,” measured in number of twitter followers of NBA athletes?
+The research question explored in this analysis is: `Is there a relationship between measures of athletic success (win percentage, offensive and defensive ratings, etc.) and the internet “popularity” of NBA athletes, measured in the number of Twitter followers?`
 
 The objective of this analysis is to predict Twitter follower counts of NBA players using measures of athletic success. 
 
 ### The Data 
 
-The data set we use in this analysis includes on-court performance data for NBA players in the 2016-2017 season, along with their salary and Twitter engagement. Because we are examining the relationship between player stats and the number of twitter followers, we filtered for players who had an active twitter account, by filtering for values where `TWITTER_HANDLE` is not n/a. After filtering, we have 95 observations. 
+The dataset we use in this analysis includes on-court performance data for NBA players in the 2016-2017 season, along with their salaries and Twitter engagement. Because we are examining the relationship between player stats and the number of twitter followers, we filtered for players who had an active twitter account, by filtering for values where `TWITTER_HANDLE` is not "NA" (0). After filtering, we have 95 observations. 
 
-The response variable is `TWITTER_FOLLOWER_COUNT_MILLIONS`, which measures players' Twitter follower count at the time the data was collected. 
+The response variable is `TWITTER_FOLLOWER_COUNT_MILLIONS`, which measures players' Twitter follower counts at the time the data was collected. 
 
 ### Exploratory Data Analysis
 
 #### Univariate
 
-First, we will do univariate EDA on the dataset. Player name will be used to refer to observations in our data set, but since each player name is distinct we do not need to do EDA on the `PLAYER_NAME` variable. 
+First, we will do univariate EDA on the dataset. Player name will be used to refer to observations in our dataset, but since each player name is distinct we do not need to do EDA on the `PLAYER_NAME` variable. 
 
-Here, I'll take a look at how many players there are from each team in the dataset: 
+Here, we'll take a look at how many players there are from each team in the dataset: 
 
 ```{r}
 nba_social_power_mod %>%
@@ -70,7 +71,7 @@ nba_social_power_mod %>%
 
 As we can see from the output, there is only one team that is represented just once in the dataset: SAC, the Sacramento Kings. The greatest number of times teams are represented in the dataset is 5. GSW (Golden State Warriors), LAC (Los Angeles Clippers), and SAS (San Antonio Spurs) are all represented 5 times. 
 
-Now, I'll explore the distribution of the `AGE` variable in the dataset:
+Now, we'll explore the distribution of the `AGE` variable in the dataset:
 
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= AGE)) + 
@@ -88,7 +89,7 @@ nba_social_power_mod %>%
 
 As we can see from the histogram, age is somewhat normally distributed in the dataset, with a mode around 27 and a surprisingly low number of 30-year olds. The mean age, 27.39, and median age, 27, are very close together, indicating little skew. The lowest age is 20 and the highest is 39. The oldest player by far, at 39, is Dirk Nowitzki.
 
-Now, I'll examine the distribution of win percent, `W_PCT`:
+Now, we'll examine the distribution of win percent, `W_PCT`:
 
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= W_PCT)) + 
@@ -102,12 +103,13 @@ nba_social_power_mod %>%
 
 As we can see from the histogram, win percent is also somewhat normally distributed, with a mode around 50 percent. The minimum win percent in the dataset is 0, while the maximum is 82.4. The median of 50.7 is very similar to the mean of 51%. The fact that the mean and median win percents in the dataset fall so close to 50% indicate good randomness in the dataset, b/c the mean and median win percents for all nba players are 50%. 
 
-Next, I'll look at the distributions for offensive rating, `OFF_RATING` and defensive rating `DEF_RATING`, as well as the distribution for `NET_RATING`, which is the average of the offensive and defensive rating:
+Next, we'll look at the distributions for offensive rating, `OFF_RATING` and defensive rating `DEF_RATING`, as well as the distribution for `NET_RATING`, which is the average of the offensive and defensive rating:
 
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= OFF_RATING)) + 
   geom_histogram(binwidth = 1) +
-  labs(x = "Offensive Rating", y = "Count", title = "Distribution of Offensive Rating")
+  labs(x = "Offensive Rating", y = "Count",
+       title = "Distribution of Offensive Rating")
 
 nba_social_power_mod %>%
   summarise(min= min(OFF_RATING), median = median(OFF_RATING), max = max(OFF_RATING))
@@ -133,7 +135,7 @@ nba_social_power_mod %>%
 
 Defensive rating, offensive rating, and net rating do not stray far from normally distributed. Offensive rating varies from 86.8	to 124.2, with a median of 107.6. Defensive rating varies from 93 to	118.3, with a median of 106. Thus, the dataset contains a larger range in terms of offensive rating, and the median is also slightly higher for defensive rated players. The distribution of net rating has multiple nearly equal modes around -2 to -3 and around 1 and 3. The median net rating is 1.5, and the net ratings in the dataset vary from -17.2 to 18.7.
 
-Next, I'll look at the distribution of the assist-to-turnovers ratio, `AST_RATIO`:
+Next, we'll look at the distribution of the assist-to-turnovers ratio, `AST_RATIO`:
 
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= AST_RATIO)) + 
@@ -148,9 +150,9 @@ nba_social_power_mod %>%
   head(2)
 ```
 
-As we can see from the histogram, the assist-turnover ratio is very right skewed. The mode is at around 10, even though the median is at 15, and the mean is 17.12526, all of which are summary statistics that emphasize the right skew. This means that while most players in the dataset had a very high assist-turnover ratio (meaning they had many more assists than turnovers), there is a wider variation among players with a high ratio and the players with lower ratios are concentrated around a few numbers. The dataset minimum ratio of 4 means that there were no players with more turnovers than assists. Notably, this is the first variable we've examined so far with a significantly non-normal distribution. The two players with very high assist-turnover ratios, 51. 5 and 41.3, are Jarnell Stokes and Ricky Rubio, respectively. 
+As we can see from the histogram, the assist-turnover ratio is very right skewed. The mode is at around 10, even though the median is at 15, and the mean is 17.12526, all of which are summary statistics that emphasize the right skew. This means that while most players in the dataset had a very high assist-turnover ratio (meaning they had many more assists than turnovers), there is a wider variation among players with a high ratio and the players with lower ratios are concentrated around a few numbers. The dataset minimum ratio of 4 means that there were no players with more turnovers than assists. Notably, this is the first variable we've examined so far with a significantly non-normal distribution. The two players with very high assist-turnover ratios, 51.5 and 41.3, are Jarnell Stokes and Ricky Rubio, respectively. 
 
-Next, I'll examine the variation of `REB_PCT`, the percent of rebounds a player makes:
+Next, we'll examine the variation of `REB_PCT`, the percent of rebounds a player makes:
 
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= REB_PCT)) + 
@@ -163,7 +165,7 @@ nba_social_power_mod %>%
 
 The distribution of rebound percentage has a minimum of 0.045	and a maximum of 0.252. The distribution is not very skewed one way or another, as supported by the similar mean of .133 and median of .127. However, the distribution is not normal in that it does not resemble a bell curve; with exceptions, the data is somewhat evenly distributed from the minimum to near the maximum (although there is some trail-off towards the right side of the distribution). This non-normal spread is likely partially an indication of the fact that the dataset contains both offensive and defensive players, because whether a player is on offense or defense has a significant effect on their rebound percentage.
 
-Next, I'll look at `USG_PCT`, usage percentage, which is an estimate of how often a player makes team plays:
+Next, we'll look at `USG_PCT`, usage percentage, which is an estimate of how often a player makes team plays:
 
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= USG_PCT)) + 
@@ -180,7 +182,7 @@ nba_social_power_mod %>%
 
 The distribution of usage percentage, with a minimum of .101 and a maximum of .408, is fairly normally distributed. The mean, .238, and median, .242, are similar. The fairly wide spread may indicate that the dataset contains a decent sampling of players- some 'star player' types and others that are not the centerpieces of their teams.The maximum of .408, while perhaps not quite an outlier, is separated from most of the other points; this usage percentage belongs to Russell Westbrook.
 
-Next, I'll examine `PIE`, player impact factor, a statistic roughly measuring a player's impact on the games that they play that's used by nba.com:
+Next, we'll examine `PIE`, player impact factor, a statistic roughly measuring a player's impact on the games that they play that's used by nba.com:
 
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= PIE)) + 
@@ -192,12 +194,13 @@ nba_social_power_mod %>%
 
 nba_social_power_mod %>%
   arrange(desc(PIE)) %>%
-  head(1)
+  select(PLAYER_NAME, PIE) %>%
+  head(10)
 ```
 
 As we can see from the histogram, the player impact factor, with a minimum of .112 and a maximum of .23, is quite right-skewed. The median player impact factor is .131, and the mean is .139, evidence of the right skew. The mode is around the median. The maximum, .23, is a significant outlier, and is that of Russell Westbrook, the same player who had by far the highest usage percentage; clearly, his data will need to be examined more closely later to see if it ultimately affects our model. 
 
-Next, I'll look into players' salaries, in millions of dollars:
+Next, we'll look into players' salaries, in millions of dollars:
 
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= SALARY_MILLIONS)) + 
@@ -209,12 +212,13 @@ nba_social_power_mod %>%
 
 nba_social_power_mod %>%
   arrange(desc(SALARY_MILLIONS)) %>%
-  head(1)
+  select(PLAYER_NAME, SALARY_MILLIONS) %>%
+  head(10)
 ```
 
-As we can see from the histogram, the distribution of salaries is somewhat right-skewed, with most of the players making less than 20 million dollars a year. The mean salary is 11.3 million dollars a year. The player who makes the most by far, at 30.96 million dollars a year, is LeBron James. 
+As we can see from the histogram, the distribution of salaries is somewhat right-skewed, with most of the players making less than 20 million dollars a year. The mean salary is 11.3 million dollars a year. The player who earns the most, at 30.96 million dollars per year, is LeBron James. On the other hand, Russell Westbrook, Kevin Durant, Mike Conley, DeMar DeRozan, and Al Horford each earn 26.54 million dollars per year.
 
-Next, I'll look at average points scored per game: 
+Next, we'll look at average points scored per game: 
 
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= PTS)) + 
@@ -227,7 +231,7 @@ nba_social_power_mod %>%
 
 As we can see from the histogram, the distribution of average points scored is slightly normal, with some obvious departures from normality. The median number of points scored per game is 14.6, and the mean is 15.28232. The maximum is 31.6, but this does not seem to be an obvious outlier. 
 
-Next, I'll examine the variable `ACTIVE_TWITTER_LAST_YEAR`, which tells us whether or not each player posted on Twitter the year before the data was collected:
+Next, we'll examine the variable `ACTIVE_TWITTER_LAST_YEAR`, which tells us whether or not each player posted on Twitter the year before the data was collected:
 
 ```{r}
 nba_social_power_mod %>%
@@ -236,7 +240,7 @@ nba_social_power_mod %>%
 
 Out of the 95 players in our modified dataset, 2 were not active on Twitter the year before the data was collected and and 93 were. 
 
-Finally, I'll look into the response variable, `TWITTER_FOLLOWER_COUNT_MILLIONS`:
+Finally, we'll look into the response variable, `TWITTER_FOLLOWER_COUNT_MILLIONS`:
 
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
@@ -251,13 +255,13 @@ nba_social_power_mod %>%
   head(2)
 ```
 
-From the histogram, we can see that the distribution of twitter follower counts is extremely right-skewed. The number of twitter followers ranges from .002 million to 37 million, with a mean of 1.6 million and a median of.246 million. There are two obvious outliers: Kevin Durant, with 16.2 million followers, and LeBron James, with 37 million followers. 
+From the histogram, we can see that the distribution of Twitter follower counts is extremely right-skewed. The number of twitter followers ranges from .002 million to 37 million, with a mean of 1.6 million and a median of.246 million. There are two obvious outliers: Kevin Durant, with 16.2 million followers, and LeBron James, with 37 million followers. 
 
 #### Bivariate
 
 Next, we will do bivariate EDA, looking into the relationships of some of the predictor variables with the response variables. We won't do bivariate EDA on player name, Twitter handle, age, team abbreviation, or whether the players were active on Twitter last year, instead focusing on terms we believe may play a more nuanced / important role in predicting Twitter followers. 
 
-First, I'll look for a relationship between win percent and twitter followers in millions:
+First, we'll look for a relationship between win percent and twitter followers in millions:
 
 ```{r}
 ggplot(nba_social_power_mod, aes(x = W_PCT, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
@@ -268,7 +272,7 @@ ggplot(nba_social_power_mod, aes(x = W_PCT, y = TWITTER_FOLLOWER_COUNT_MILLIONS)
 
 From the above plot, we can see that win percent and twitter follower count may have a very weak positive  orrelations. The players with significantly higher-than-average Twitter follower counts tend to have higher win percentages; however, this relationship is very weak. 
 
-Next, I'll look at the relationship between net rating, which combines offensive and defensive rating, and Twitter follower count:
+Next, we'll look at the relationship between net rating, which combines offensive and defensive rating, and Twitter follower count:
 
 ```{r}
 ggplot(nba_social_power_mod, aes(x = NET_RATING, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
@@ -279,7 +283,7 @@ ggplot(nba_social_power_mod, aes(x = NET_RATING, y = TWITTER_FOLLOWER_COUNT_MILL
 
 Similarly to win percent, Twitter follower count and net rating seem to have a very weak positive relationship. The players with the highest net ratings more often have higher-than-average Twitter follower counts, and more players with positive net ratings have high Twitter follower counts than those with negative net ratings. 
 
-Next, I'll look at the relationship between assist-to-turnovers ratio and Twitter follower count:
+Next, we'll look at the relationship between assist-to-turnovers ratio and Twitter follower count:
 
 ```{r}
 ggplot(nba_social_power_mod, aes(x = AST_RATIO, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
@@ -290,7 +294,7 @@ ggplot(nba_social_power_mod, aes(x = AST_RATIO, y = TWITTER_FOLLOWER_COUNT_MILLI
 
 There is no evident relationship between assist-turnover ratio and Twitter follower count. 
 
-Next, I'll examine whether there is a relationship between rebound percentage and Twitter follower count:
+Next, we'll examine whether there is a relationship between rebound percentage and Twitter follower count:
 
 ```{r}
 ggplot(nba_social_power_mod, aes(x = REB_PCT, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
@@ -301,7 +305,7 @@ ggplot(nba_social_power_mod, aes(x = REB_PCT, y = TWITTER_FOLLOWER_COUNT_MILLION
 
 There is no evident relationship between rebound percentage and Twitter follower count. 
 
-Next, I'll examine whether there is a relationship between usage percentage and Twitter follower count:
+Next, we'll examine whether there is a relationship between usage percentage and Twitter follower count:
 
 ```{r}
 ggplot(nba_social_power_mod, aes(x = USG_PCT, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
@@ -312,7 +316,7 @@ ggplot(nba_social_power_mod, aes(x = USG_PCT, y = TWITTER_FOLLOWER_COUNT_MILLION
 
 There appears to be a very weak positive correlation between usage percentage and Twitter follower count; players with a high usage percentage tend to have more Twitter followers, on average, than those with a lower usage percentage. 
 
-Next, I'll examine whether there is a relationship between player impact factor and Twitter follower count:
+Next, we'll examine whether there is a relationship between player impact factor and Twitter follower count:
 
 ```{r}
 ggplot(nba_social_power_mod, aes(x = PIE, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
@@ -323,7 +327,7 @@ ggplot(nba_social_power_mod, aes(x = PIE, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) 
 
 There appears to be a  somewhat positive correlation between player impact factor and Twitter follower count; players with a high player impact factor tend to have more Twitter followers, on average, than those with a lower player impact factor. 
 
-Now, I'll look for a relationship between average points scored per game and Twitter follower count:
+Now, we'll look for a relationship between average points scored per game and Twitter follower count:
 
 ```{r}
 ggplot(nba_social_power_mod, aes(x = PTS, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
@@ -334,7 +338,7 @@ ggplot(nba_social_power_mod, aes(x = PTS, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) 
 
 There appears to be a weak positive correlation between average points scored and Twitter follower count; players with higher avg. points scored tend to have more Twitter followers than those with lower avg. points scored. 
 
-Finally, I'll look for a relationship between player salaries and points scored:
+Finally, we'll look for a relationship between player salaries and points scored:
 
 ```{r}
 ggplot(nba_social_power_mod, aes(x = SALARY_MILLIONS, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
@@ -351,9 +355,10 @@ patchwork: multinomial logistic lecture code
 
 ### Multivariate Data Analysis
 
-Now, I'll do some multivariate analysis. In this section, I am looking for predictor variables that may affect the way other predictor variables relate to the response variable. 
+Now, we'll do some multivariate analysis. In this section, we are looking for predictor variables that may affect the way other predictor variables relate to the response variable. 
 
-First, I'll look to see if points scored affects the way player impact factor relates to Twitter follower count. 
+First, we'll look to see if points scored affects the way player impact factor (PIE) relates to Twitter follower count: 
+
 ```{r}
 nba_social_power_mod1 <- nba_social_power_mod %>%
   mutate(PTS_CAT = case_when(
@@ -370,10 +375,9 @@ ggplot(data = nba_social_power_mod1, aes(x = PIE, y = TWITTER_FOLLOWER_COUNT_MIL
        title = "Relationship Between Pts Scored, Twitter Followers, and Player Impact Factor")
 ```
 
-As we can see from the above color-coded boxplot, many of the players with the highest points scored numbers have much higher player impact factors, and player impact factor values have a weak positive correlation with Twitter follower count. This could be an opportunity for an interaction term. 
+As we can see from the above color-coded boxplot, many of the players with the most points scored have higher player impact factors, and player impact factor values have a weak positive correlation with the Twitter follower count. This could be an opportunity for an interaction term. 
 
-
-Next, I'll try to determine whether win percentage affects the way salary relates to Twitter follower count. 
+Next, we'll try to determine whether win percentage affects the way salary relates to the Twitter follower count:
 
 ```{r}
 nba_social_power_mod1 <- nba_social_power_mod %>%
@@ -386,11 +390,222 @@ nba_social_power_mod1 <- nba_social_power_mod %>%
 ```{r}
 ggplot(data = nba_social_power_mod1, aes(x = SALARY_MILLIONS, y = TWITTER_FOLLOWER_COUNT_MILLIONS,color = W_PCT_CAT)) +
          geom_point() + 
-  labs(x = "Salary, in Millions", y= "Twitter Follower Count, in Millions", 
+  labs(x = "Salary, in Millions", y = "Twitter Follower Count, in Millions", 
        color = "Proportion of Games Won",
        title = "Relationship Between Win Percentage,
        Twitter Followers, and Salary")
 ```
 
-As we can see from the scatterplot, players with higher win percentages tend to be paid more, and high salary has a weak positive correlation with Twitter follower count. This could also be an opportunity for an interaction term. 
+As we can see from the scatterplot, players with higher win percentages tend to be paid more, and high salary has a weak positive correlation with the Twitter follower count. This could also be an opportunity for an interaction term. 
 
+### Adjustments (Mean-Centering)
+
+Before we proceed with the analysis, we will mean-center the quantitative variables:
+
+```{r mean-centering}
+nba_social_power_mod <- nba_social_power_mod %>%
+  mutate(ageCent = AGE - mean(AGE),
+         ast_ratioCent = AST_RATIO - mean(AST_RATIO),
+         off_ratingCent = OFF_RATING - mean(OFF_RATING),
+         def_ratingCent = DEF_RATING - mean(DEF_RATING),
+         net_ratingCent = NET_RATING - mean(NET_RATING),
+         PIECent = PIE - mean(PIE),
+         reb_pctCent = REB_PCT - mean(REB_PCT),
+         usg_pctCent = USG_PCT - mean(USG_PCT),
+         salary_millionsCent = SALARY_MILLIONS - mean(SALARY_MILLIONS),
+         w_pctCent = W_PCT - mean(W_PCT),
+         ptsCent = PTS - mean(PTS))
+```
+
+### Modeling Approach
+
+As our response, `TWITTER_FOLLOWER_COUNT_MILLIONS`, is a continuous numerical variable, we will use a multiple linear regression model (obviously, we plan to include two or more predictors, so simple linear regression would not apply!).
+
+In regard to model selection, we will begin by fitting a mutiple linear regression model with main effects, as well as interaction effects. We are considering `salary_millionsCent` * `w_pctCent` and `PIECent` * `ptsCent` as potential interaction terms for our model since multivariate EDA highlighted strong positive relationships between win percentage and player salaries and points scored and PIE (player impact factor).
+
+Next, we will perform two iterations of backward selection on the first model: (i) using AIC as the selection criterion and (ii) using adjusted R-squared as the selection criterion. We decided against trying BIC as the selection criterion because we would prefer more terms in the final model as our objective is to predict the Twitter follower counts of NBA players using measures of athletic success (and predictions are generally more accurate with more relevant predictor variables).
+
+After completing the two iterations of backward selection, we will compare the resulting models and see whether certain terms are removed in both (which would suggest those terms are not particularly useful).
+
+After obtaining a final model, we will examine the impact of including versus excluding prominent athletes (e.g. LeBron James) in our model since our objective is to design a model with the best predictive accuracy. We choose to analyze this at the end of the model selection phase because prominent athletes are also included in the population we want to understand when fitting the multiple linear regression model.
+
+### Model 1
+
+We will simply fit a model with eleven main effect terms--`ageCent`, `ast_ratioCent` `off_ratingCent`, `def_ratingCent`, `PIECent`, `reb_pctCent`, `usg_pctCent`, `salary_millionsCent`, `w_pctCent`, `ptsCent`, and `ACTIVE_TWITTER_LAST_YEAR`--and two interaction terms (`salary_millionsCent` * `w_pctCent` and `PIECent` * `ptsCent`). We decided to use `off_ratingCent` and `def_ratingCent` as opposed to  `net_ratingCent` because the two individual components potentially provide more important information in predicting the number of Twitter followers.
+
+```{r first-model}
+m1 <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS ~ ageCent +
+           ast_ratioCent +
+           off_ratingCent +
+           def_ratingCent +
+           PIECent +
+           reb_pctCent +
+           usg_pctCent +
+           salary_millionsCent +
+           w_pctCent +
+           ptsCent +
+           ACTIVE_TWITTER_LAST_YEAR +
+           salary_millionsCent * w_pctCent +
+           PIECent * ptsCent,
+         data = nba_social_power_mod)
+tidy(m1, conf.int = TRUE) %>%
+  kable(format = "markdown", digits = 3)
+```
+
+Based on the output, the equation of the linear model is: `TWITTER_FOLLOWER_COUNT_MILLIONS`-hat = -2.386 + 0.262 * `ageCent` + 0.017 * `ast_ratioCent` + 0.026 * `off_ratingCent` + 0.086 * `def_ratingCent` + 13.104 * `PIECent` + 7.689 * `reb_pctCent` + 0.052 * `usg_pctCent` + 0.086 * `salary_millionsCent` + 7.095 * `w_pctCent` + 0.063 * `ptsCent` + 3.523 * `ACTIVE_TWITTER_LAST_YEAR` + 0.999 * `salary_millionsCent * w_pct_Cent` + 1.293 * `PIECent * ptsCent`.
+
+### Backward Selection (Iteration 1)
+
+We will now perform the first iteration of backward selection using AIC as the selection criterion:
+
+```{r backward-selection-1}
+m1_aic <- step(m1, direction = "backward")
+
+tidy(m1_aic, conf.int = TRUE) %>%
+  kable(format = "markdown", digits = 3)
+```
+
+Based on the output displayed above from the first iteration of backward selection (using AIC as the selection criterion), seven main effect terms (`ast_ratioCent` `off_ratingCent`, `def_ratingCent`, `reb_pctCent`, `usg_pctCent`, `ptsCent`, and `ACTIVE_TWITTER_LAST_YEAR`) and one interaction term (`PIECent` * `ptsCent`) were removed.
+
+Hence, the equation of the selected linear model is: `TWITTER_FOLLOWER_COUNT_MILLIONS`-hat = 1.175 + 0.225 * `ageCent` + 27.461 * `PIECent` + 0.111 * `salary_millionsCent` + 6.294 * `w_pctCent` + 1.019 * `salary_millionsCent * w_pctCent`.
+
+However, `PIECent`, which has the highest slope coefficient in the linear model, has a high standard error and a high p-value (0.143). Furthermore, the confidence interval for the slope coefficient is extremely wide (-9.427 to 64.349), not to mention the fact that it includes zero. So, we can reasonably infer `PIECent` may be a particularly troublesome predictor in the model (especially since it appears to not significantly affect the response, `TWITTER_FOLLOWER_COUNT_MILLIONS`).
+
+We will proceed with the second iteration of backward selection and will revisit the issue of `PIECent` after viewing the selected linear regression model based on adjusted R-squared.
+
+### Backward Selection (Iteration 2)
+
+Next, we will perform the second iteration of backward selection using adjusted R-squared as the selection criterion:
+
+```{r backward-selection-2}
+m1_adjR <- regsubsets(TWITTER_FOLLOWER_COUNT_MILLIONS ~ ageCent +
+           ast_ratioCent +
+           off_ratingCent +
+           def_ratingCent +
+           PIECent +
+           reb_pctCent +
+           usg_pctCent +
+           salary_millionsCent +
+           w_pctCent +
+           ptsCent +
+           ACTIVE_TWITTER_LAST_YEAR +
+           salary_millionsCent * w_pctCent +
+           PIECent * ptsCent,
+         data = nba_social_power_mod,
+         method = "backward")
+
+select_summary <- summary(m1_adjR)
+coef(m1_adjR, which.max(select_summary$adjr2))
+```
+
+Based on the output displayed above from the second iteration of backward selection (using adjusted R-squared as the selection criterion), six main effect terms (`ast_ratioCent` `off_ratingCent`, `def_ratingCent`, `reb_pctCent`, `usg_pctCent`, and `ptsCent`) and one interaction term (`PIECent` * `ptsCent`) were removed.
+
+Hence, the equation of the selected linear model is: `TWITTER_FOLLOWER_COUNT_MILLIONS`-hat = -2.379 + 0.215 * `ageCent` + 28.560 * `PIECent` + 0.115 * `salary_millionsCent` + 6.638 * `w_pctCent` + 3.626 * `ACTIVE_TWITTER_LAST_YEAR` + 1.031 * `salary_millionsCent * w_pct_Cent`.
+
+### Model Comparison: AIC vs. Adjusted R-squared
+
+We notice that the model selected using adjusted R-squared as the selection criterion included an additional term (`ACTIVE_TWITTER_LAST_YEAR`) which was omitted in the model selected based on the first iteration of backward selection (using AIC as the selection criterion). 
+
+If we closely investigate the results of the `step()` function, we can see that `ACTIVE_TWITTER_LAST_YEAR` was the last predictor removed during the first iteration of backward selection. In fact, the difference in AIC between the final two steps is only `253.41 - 253.4 = 0.01`. Again, recalling our objective in this analysis--to predict Twitter follower counts of NBA players--we choose to leave `ACTIVE_TWITTER_LAST_YEAR` in the final model because the information provided by this categorical variable--whether the player maintained an active Twitter account during the 2015-2016 season--is clearly relevant to the response, `TWITTER_FOLLOWER_COUNT_MILLIONS` (which measures players' total Twitter follower counts). Also, when designing a model for predictive purposes, including more predictors (which are relevant) is generally accepted. However, we must consider how `TWITTER_FOLLOWER_COUNT_MILLIONS` will affect our model interpretations since it has a high p-value and a wide confidence interval including zero.
+
+Now, as promised, we return to the issue of `PIECent`. Unfortunately, both selected models included `PIECent`; thus, we must decide whether to keep the variable in the model, or ignore the results from the two iterations of backward selection and remove it.
+
+To answer this question, we will compare the AIC and adjusted R-squared values for the model selected based on the second iteration of backward selection (`m1_adjR`, which includes `ACTIVE_TWITTER_LAST_YEAR`) and the same model except without `PIECent`.
+
+```{r include-PIECent}
+m1_modV1 <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS ~ ageCent +
+               salary_millionsCent +
+               PIECent +
+               w_pctCent +
+               ACTIVE_TWITTER_LAST_YEAR +
+               salary_millionsCent * w_pctCent,
+             data = nba_social_power_mod)
+```
+
+```{r exclude-PIECent}
+m1_modV2 <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS ~ ageCent +
+                 salary_millionsCent +
+                 w_pctCent +
+                 ACTIVE_TWITTER_LAST_YEAR +
+                 salary_millionsCent * w_pctCent,
+               data = nba_social_power_mod)
+```
+
+```{r calc-AIC-adjR-include-PIECent}
+glance(m1_modV1)$AIC
+glance(m1_modV1)$adj.r.squared
+```
+
+```{r calc-AIC-adjR-exclude-PIECent}
+glance(m1_modV2)$AIC
+glance(m1_modV2)$adj.r.squared
+```
+
+Based on the output of the `glance()` function, the AIC of the model with `PIECent` is 525.0067. Conversely, the AIC of the model without `PIECent` is 525.5473.
+
+Moreover, the adjusted R-squared value for the model with `PIECent` is roughly 0.321, whereas the adjusted R-squared value for the model without `PIECent` is about 0.310. 
+
+Therefore, the model with `PIECent` maximizes adjusted R-squared and minimizes AIC. Hence, despite our qualms with the large standard error and high p-value, we will keep `PIECent` in the model. Of course, we will need to consider this information carefully when interpreting our model and evaluating its predictive capabailities.
+
+### Final Model
+
+Thus, our final model is:
+
+```{r final-model}
+tidy(m1_modV1, conf.int = TRUE) %>%
+  kable(format = "markdown", digits = 3)
+```
+
+So, the equation of the final model is: `TWITTER_FOLLOWER_COUNT_MILLIONS`-hat = -2.379 + 0.215 * `ageCent` + 28.560 * `PIECent` + 0.115 * `salary_millionsCent` + 6.638 * `w_pctCent` + 3.626 * `ACTIVE_TWITTER_LAST_YEAR` + 1.031 * `salary_millionsCent * w_pct_Cent`.
+
+### Impact of Prominent Players
+
+Lastly, before proceeding to discuss assumptions, we would like to examine the impact of including versus excluding prominent athletes (e.g. LeBron James) in our model:
+
+```{r prominent-athletes}
+nba_social_power_mod %>%
+  arrange(desc(SALARY_MILLIONS)) %>%
+  select(PLAYER_NAME, SALARY_MILLIONS) %>%
+  head(10)
+
+nba_social_power_mod %>%
+  arrange(desc(TWITTER_FOLLOWER_COUNT_MILLIONS)) %>%
+  select(PLAYER_NAME, TWITTER_FOLLOWER_COUNT_MILLIONS) %>%
+  head(10)
+```
+
+Based on the tables above, it is clear LeBron James is an outlier, both in regard to his annual salary and Twitter follower count. So, we will remove LeBron from the dataset and see how the model changes:
+
+```{r removing-LeBron}
+nba_social_power_mod2 <- nba_social_power_mod %>%
+  filter(PLAYER_NAME != "LeBron James")
+
+glimpse(nba_social_power_mod2)
+```
+
+Based on the `glimpse()` output, we can see LeBron has been removed from the dataset (94 observations remaining).
+
+Now, to assess the impact of his absence on the final model:
+
+```{r model-without-LeBron}
+m1_modV3 <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS ~ ageCent +
+               salary_millionsCent +
+               PIECent +
+               w_pctCent +
+               ACTIVE_TWITTER_LAST_YEAR +
+               salary_millionsCent * w_pctCent,
+             data = nba_social_power_mod2)
+
+tidy(m1_modV3, conf.int = TRUE) %>%
+  kable(format = "markdown", digits = 3)
+```
+
+The equation of the final model without LeBron James is: `TWITTER_FOLLOWER_COUNT_MILLIONS`-hat = -1.358 + 0.128 * `ageCent` + 16.105 * `PIECent` + 0.082 * `salary_millionsCent` + 4.081 * `w_pctCent` + 2.490 * `ACTIVE_TWITTER_LAST_YEAR` + 0.472 * `salary_millionsCent * w_pct_Cent`.
+
+Comparing the two equations, we notice a huge discrepancy in the slope coefficient of `PIECent`. This makes sense since LeBron has the sixth-highest PIE in the league (0.183), so eliminating him from the dataset dramatically affects the mean PIE (as well as the spread, or standard deviation).
+
+Since our objective is to accurately predict the Twitter follower counts of NBA players, it is probably best to exclude LeBron to avoid overestimating for less prominent athletes. Hence, we will continue with our analysis using the multiple linear regression model without LeBron James.
+
+### Discussion of Assumptions
+
+*use model without LeBron (m1_modV3)
