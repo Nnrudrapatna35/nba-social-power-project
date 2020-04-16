@@ -52,7 +52,7 @@ The objective of this analysis is to predict Twitter follower counts of NBA play
 
 ### The Data 
 
-The dataset we use in this analysis includes on-court performance data for NBA players in the 2016-2017 season, along with their salaries and Twitter engagement. Because we are examining the relationship between player stats and the number of twitter followers, we filtered for players who had an active twitter account, by filtering for values where `TWITTER_HANDLE` is not "NA" (0). After filtering, we have 95 observations. 
+The dataset we use in this analysis includes on-court performance data for NBA players in the 2016-2017 season, along with their salaries and Twitter engagement. Because we are examining the relationship between player stats and the number of Twitter followers, we filtered for players who had an active Twitter account, by filtering for values where `TWITTER_HANDLE` is not "NA" (0). After filtering, we have 95 observations. 
 
 The response variable is `TWITTER_FOLLOWER_COUNT_MILLIONS`, which measures players' Twitter follower counts at the time the data was collected. 
 
@@ -313,13 +313,13 @@ nba_social_power_mod %>%
   head(2)
 ```
 
-From the histogram, we can see that the distribution of Twitter follower counts is extremely right-skewed. The number of twitter followers ranges from .002 million to 37 million, with a mean of 1.6 million and a median of.246 million. There are two obvious outliers: Kevin Durant, with 16.2 million followers, and LeBron James, with 37 million followers. 
+From the histogram, we can see that the distribution of Twitter follower counts is extremely right-skewed. The number of Twitter followers ranges from .002 million to 37 million, with a mean of 1.6 million and a median of.246 million. There are two obvious outliers: Kevin Durant, with 16.2 million followers, and LeBron James, with 37 million followers. 
 
 #### Bivariate
 
 Next, we will do bivariate EDA, looking into the relationships of some of the predictor variables with the response variables. We won't do bivariate EDA on player name, Twitter handle, age, team abbreviation, or whether the players were active on Twitter last year, instead focusing on terms we believe may play a more nuanced / important role in predicting Twitter followers. 
 
-First, we'll look for a relationship between win percent and twitter followers in millions:
+First, we'll look for a relationship between win percent and Twitter followers in millions:
 
 ```{r}
 ggplot(nba_social_power_mod, aes(x = W_PCT, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
@@ -328,7 +328,7 @@ ggplot(nba_social_power_mod, aes(x = W_PCT, y = TWITTER_FOLLOWER_COUNT_MILLIONS)
        x = "Win Percent", y = "Twitter Follower Count, in Millions")
 ```
 
-From the above plot, we can see that win percent and twitter follower count may have a very weak positive  orrelations. The players with significantly higher-than-average Twitter follower counts tend to have higher win percentages; however, this relationship is very weak. 
+From the above plot, we can see that win percent and Twitter follower count may have a very weak positive  orrelations. The players with significantly higher-than-average Twitter follower counts tend to have higher win percentages; however, this relationship is very weak. 
 
 Next, we'll look at the relationship between net rating, which combines offensive and defensive rating, and Twitter follower count:
 
@@ -670,14 +670,6 @@ tidy(m_final, conf.int = TRUE) %>%
 
 The equation of the final model is: `TWITTER_FOLLOWER_COUNT_MILLIONS`-hat = 1.184 + 0.163 * `salary_millionsCent` + 7.761 * `w_pctCent` + 0.997 * `salary_millionsCent * w_pct_Cent`.
 
-Lastly, we consider any potential concerns with multicollinearity:
-
-```{r multicollinearity}
-tidy(vif(m_final))
-```
-
-As we can see, none of the predictors have VIFs >= 10, so we are not concerned about multicollinearity. 
-
 ### Impact of Prominent Players
 
 Lastly, before proceeding to discuss assumptions, we would like to examine the impact of including versus excluding prominent athletes in our model. Since he is widely regarded as one of the best NBA players of all-time, we will use LeBron James as a case study for preliminary analysis:
@@ -815,11 +807,13 @@ tidy(m_final_noLJ, conf.int = TRUE) %>%
 
 ### Discussion of Assumptions
 
-According to our dataset, 5 observations have players who are missing Twitter handles. These values are missing at random because missingness depends on other observed variables (like the person's social media usage, etc.). The probability that a varaible is missing depends on variable information not included in our dataset. We decided to remove the 5 players from our dataset because there were very few observations with missing values, and after remving these variables, we still have 95 observations. The observations with missingness are also random, so the resulting analysis will not be biased because the missingness doesn't differ systematically from the complete observations. In addition, we decided because our analysis is built on determining what predicts the number of Twitter followers, observations without Twitter accounts can't be used to predict for the model.
+According to our dataset, 5 observations have players who are missing Twitter handles. These values are missing at random because missingness depends on other observed variables (like the person's social media usage, etc.). The probability that a variable is missing depends on information not included in our dataset. We decided to remove the 5 players from our dataset because there were very few observations with missing values, and after removing these variables, we still had 95 observations. The observations with missingness are also random, so the resulting analysis will not be biased because the missingness does not differ systematically from the complete observations. In addition, since our objective is predicting the number of Twitter followers for NBA athletes, players without Twitter accounts are outside of the model's predictive capabilities and hence do not belong in the dataset.
 
-One other change we've made to our original set was using our final model without LeBron because we decided according to Cook's distance and observation number that LeBron was an outlier in the dataset and had a significant effect on the regression line. We decided to remove LeBron to avoid overestimation in our model. Therefore, we are left with 94 observations, which is still a very large sample and large enough to build a model on that can be generalizable to any population of NBA athletes.
+One other modification we have made to our original dataset is removing LeBron James. We decided, based on Cook's distance, standardized residuals, and leverage, LeBron was an influential point with a significant effect on the regression line. Consequently, we removed LeBron to avoid overestimation in our model.
 
-Next, we will check for assumptions for linearity, constant variance, normality, and independence to see if inference on regression coefficients and predictions are reliable.
+Therefore, we are left with 94 observations, which is still a large enough sample population to build a model which can be generalized to a larger population of NBA athletes.
+
+Next, we will check the linearity, constant variance, normality, and independence assumptions to see if inference and predictions will be reliable.
 
 First, we will check for linearity and whether the response variable has a linear relationship with the predictor variables in the model. We will check the plot of standardized residuals vs. predicted values:
 
@@ -835,7 +829,7 @@ ggplot(data = m_final_aug, aes(x = .fitted, y = .std.resid)) +
 
 When observing for constant variance, the height of the cloud of points seems to increase as you move from left to right. Points are clustered at the very left then grow to be more spare as you move along the graph. Therfore, constant variance is not satisfied. 
 
-There is no obvious pattern and the shape of the graph seems to be linear. This supports our assumption for linearity. 
+There is no obvious pattern and the shape of the graph seems to be linear. Hence, this plot presents no issues with the linearity assumption. 
 
 Next, we will observe the plot of residuals vs. predictors: 
 
@@ -848,7 +842,7 @@ ggplot(data = m_final_aug, aes(x = salary_millionsCent, y = .std.resid)) +
 
 ```
 
-There looks to be a pattern in the plot because towards the end it curves upward drastically. Therefore, this pattern suggests that interactions or higher-order terms (like quadratic terms) are required. Linearity is not satisfied.
+There looks to be a pattern in the plot because towards the end it curves upward drastically. Therefore, this pattern suggests that interactions or higher-order terms (like quadratic terms) are required. Thus, linearity is not satisfied.
 
 ```{r}
 ggplot(data = m_final_aug, aes(x = w_pctCent, y = .std.resid)) +
@@ -869,7 +863,9 @@ nba_social_power_mod2 <- nba_social_power_mod2 %>%
 ```
 
 ```{r}
-ggplot(data = nba_social_power_mod2, mapping = aes(x = resid)) + geom_histogram() + labs(title = "Distribution of Residuals", x = "Residuals", y = "Count")
+ggplot(data = nba_social_power_mod2, mapping = aes(x = resid)) + geom_histogram() + labs(title = "Distribution of Residuals",
+                                                                                         x = "Residuals",
+                                                                                         y = "Count")
 ```
 
 Normality is supported because the histogram of residuals is normal because the distribution is unimodal and the distribution is symmetric.
@@ -892,19 +888,19 @@ ggplot(data = m_final_aug, aes(x = obs_num, y = .std.resid)) +
        title = "Residuals vs. Observation Number")
 ```
 
-Looking at the graph, there is no distinguishable pattern in the graph. The number of twitter followers of one player will not affect the number of twitter followers of another player. Therefore, independence is satisfied.
+Looking at the graph, there is no distinguishable pattern in the graph. The number of Twitter followers of one player will not affect the number of Twitter followers of another player. Therefore, independence is satisfied.
 
 Therefore, because constant variance and normality are not satisfied but linearity and independence are, we will proceed with caution with our model.
 
 Lastly, we will also check for multicollinearity in our model. If two or more predictor variables are highly correlated in our model, our regression may change eratically in response to small changes in our data. 
 
-We will check the variance inflation factor for every predictor variable to see if any are greater than 10.
+We will check the variance inflation factor (VIF) for every predictor variable to check for concerns with multicollinearity:
 
-```{r}
-vif(m_final_noLJ)
+```{r vif}
+tidy(vif(m_final_noLJ))
 ```
 
-None of the variables are greater than 10, so there are no issues with multicollinearity.
+None of the variables have VIFs greater than or equal to 10, so there are no issues with multicollinearity.
 
 ### Interpretations
 
