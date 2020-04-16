@@ -52,7 +52,7 @@ The objective of this analysis is to predict Twitter follower counts of NBA play
 
 ### The Data 
 
-The dataset we use in this analysis includes on-court performance data for NBA players in the 2016-2017 season, along with their salaries and Twitter engagement. Because we are examining the relationship between player stats and the number of Twitter followers, we filtered for players who had an active Twitter account, by filtering for values where `TWITTER_HANDLE` is not "NA" (0). After filtering, we have 95 observations. 
+The dataset we use in this analysis includes on-court performance data for NBA players in the 2016-2017 season, along with their salaries and Twitter engagement. The dataset is from Kaggle and references ESPN, Basketball-Reference, Twitter, Five-ThirtyEight, and Wikipedia as data sources. Because we are examining the relationship between player stats and the number of Twitter followers, we filtered for players who had an active Twitter account, by filtering for values where `TWITTER_HANDLE` is not "NA" (0). After filtering, we have 95 observations. 
 
 The response variable is `TWITTER_FOLLOWER_COUNT_MILLIONS`, which measures players' Twitter follower counts at the time the data was collected. 
 
@@ -863,7 +863,7 @@ nba_social_power_mod2 <- nba_social_power_mod2 %>%
 ```
 
 ```{r}
-ggplot(data = nba_social_power_mod2, mapping = aes(x = std_resid)) + geom_histogram() + labs(title = "Distribution of Standardized Residuals", x = "Standardized Residuals", ```y = "Count")
+ggplot(data = nba_social_power_mod2, mapping = aes(x = std_resid)) + geom_histogram() + labs(title = "Distribution of Standardized Residuals", x = "Standardized Residuals", y = "Count")
 ```
 
 Normality is supported because the histogram of residuals is normal because the distribution is unimodal and the distribution is symmetric.
@@ -874,7 +874,7 @@ ggplot(data = nba_social_power_mod2, mapping = aes(sample = std_resid)) + stat_q
 
 However, normality is not satisfied because some of the points don't follow the diagonal line. 
 
-Lastly, we will check for independence. Data was not taken over time, so we know there is no temporal correlation. There is also no spatial correlation because data was not taken in space. We can check to see if there is some structure/order to the dataset according to observation number.
+Lastly, we will check for independence. Data was not taken over time, so we know there is no temporal correlation. There is also no spatial correlation because data was not taken in space. We can check to see if there is some structure/order to the dataset according to observation number. There is no purposeful order to how the dataset was collected according to Kaggle, but we will check just in case:
 
 ```{r}
 m_final_aug <- m_final_aug %>%
@@ -971,7 +971,7 @@ ggplot(data = nba_social_power_mod2, mapping = aes(sample = std_resid)) + stat_q
 
 However, normality is not satisfied because some of the points don't follow the diagonal line. 
 
-Lastly, we will check for independence. Data was not taken over time, so we know there is no temporal correlation. There is also no spatial correlation because data was not taken in space. We can check to see if there is some structure/order to the dataset according to observation number.
+Lastly, we will check for independence. Data was not taken over time, so we know there is no temporal correlation. There is also no spatial correlation because data was not taken in space. We can check to see if there is some structure/order to the dataset according to observation number. There is no purposeful order the data was collected in according to Kaggle, but we will check just in case:
 
 ```{r}
 m_final_adj_aug <- m_final_adj_aug %>%
