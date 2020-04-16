@@ -81,7 +81,8 @@ ggplot(data = nba_social_power_mod, aes(x= AGE)) +
 
 nba_social_power_mod %>%
   summarise(mean = mean(AGE), min= min(AGE), Q1 = quantile(AGE, .25), median = median(AGE), 
-            Q3 = quantile(AGE, .75), max = max(AGE))
+            Q3 = quantile(AGE, .75),
+            max = max(AGE))
 
 nba_social_power_mod %>%
   arrange(desc(AGE)) %>%
@@ -99,7 +100,8 @@ ggplot(data = nba_social_power_mod, aes(x= W_PCT)) +
 
 nba_social_power_mod %>%
   summarise(mean = mean(W_PCT), min= min(W_PCT), Q1 = quantile(W_PCT, .25),
-            median = median(W_PCT), Q3 = quantile(W_PCT, .75), max = max(W_PCT))
+            median = median(W_PCT), Q3 = quantile(W_PCT, .75),
+            max = max(W_PCT))
 ```
 
 As we can see from the histogram, win percent is also somewhat normally distributed, with a mode around 50 percent. The minimum win percent in the dataset is 0, while the maximum is 82.4. The median of 50.7 is very similar to the mean of 51%. The fact that the mean and median win percents in the dataset fall so close to 50% indicate good randomness in the dataset, b/c the mean and median win percents for all nba players are 50%. 
@@ -113,25 +115,30 @@ ggplot(data = nba_social_power_mod, aes(x= OFF_RATING)) +
        title = "Distribution of Offensive Rating")
 
 nba_social_power_mod %>%
-  summarise(min= min(OFF_RATING), median = median(OFF_RATING), max = max(OFF_RATING))
+  summarise(min= min(OFF_RATING), median = median(OFF_RATING),
+            max = max(OFF_RATING))
 ```
 
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= DEF_RATING)) + 
   geom_histogram(binwidth = 1) +
-  labs(x = "Defensive Rating", y = "Count", title = "Distribution of Defensive Rating")
+  labs(x = "Defensive Rating", y = "Count",
+       title = "Distribution of Defensive Rating")
 
 nba_social_power_mod %>%
-  summarise(min= min(DEF_RATING), median = median(DEF_RATING), max = max(DEF_RATING))
+  summarise(min= min(DEF_RATING), median = median(DEF_RATING),
+            max = max(DEF_RATING))
 ```
 
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= NET_RATING)) + 
   geom_histogram(binwidth = 1) +
-  labs(x = "Net Rating", y = "Count", title = "Distribution of Net Rating")
+  labs(x = "Net Rating", y = "Count",
+       title = "Distribution of Net Rating")
 
 nba_social_power_mod %>%
-  summarise(min= min(NET_RATING), median = median(NET_RATING), max = max(NET_RATING))
+  summarise(min= min(NET_RATING), median = median(NET_RATING),
+            max = max(NET_RATING))
 ```
 
 Defensive rating, offensive rating, and net rating do not stray far from normally distributed. Offensive rating varies from 86.8	to 124.2, with a median of 107.6. Defensive rating varies from 93 to	118.3, with a median of 106. Thus, the dataset contains a larger range in terms of offensive rating, and the median is also slightly higher for defensive rated players. The distribution of net rating has multiple nearly equal modes around -2 to -3 and around 1 and 3. The median net rating is 1.5, and the net ratings in the dataset vary from -17.2 to 18.7.
@@ -141,10 +148,16 @@ Next, we'll look at the distribution of the assist-to-turnovers ratio, `AST_RATI
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= AST_RATIO)) + 
   geom_histogram(binwidth = 3) +
-  labs(x = "Assist-Turnover Ratio", y = "Count", title = "Distribution of Assist-Turnover Ratio")
+  labs(x = "Assist-Turnover Ratio", y = "Count",
+       title = "Distribution of Assist-Turnover Ratio")
 
 nba_social_power_mod %>%
-  summarise(mean = mean(AST_RATIO), min= min(AST_RATIO), Q1 = quantile(AST_RATIO, .25), median =   median(AST_RATIO),  Q3 = quantile(AST_RATIO, .75), max = max(AST_RATIO))
+  summarise(mean = mean(AST_RATIO),
+            min= min(AST_RATIO),
+            Q1 = quantile(AST_RATIO, .25),
+            median = median(AST_RATIO),
+            Q3 = quantile(AST_RATIO, .75),
+            max = max(AST_RATIO))
 
 nba_social_power_mod %>%
   arrange(desc(AST_RATIO)) %>%
@@ -158,10 +171,16 @@ Next, we'll examine the variation of `REB_PCT`, the percent of rebounds a player
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= REB_PCT)) + 
   geom_histogram(binwidth = .01) +
-  labs(x = "Rebound Percentage", y = "Count", title = "Distribution of Rebound Percentage")
+  labs(x = "Rebound Percentage", y = "Count",
+       title = "Distribution of Rebound Percentage")
 
 nba_social_power_mod %>%
-  summarise(mean = mean(REB_PCT), min= min(REB_PCT), Q1 = quantile(REB_PCT, .25), median =   median(REB_PCT),  Q3 = quantile(REB_PCT, .75), max = max(REB_PCT))
+  summarise(mean = mean(REB_PCT),
+            min= min(REB_PCT),
+            Q1 = quantile(REB_PCT, .25),
+            median = median(REB_PCT),
+            Q3 = quantile(REB_PCT, .75),
+            max = max(REB_PCT))
 ```
 
 The distribution of rebound percentage has a minimum of 0.045	and a maximum of 0.252. The distribution is not very skewed one way or another, as supported by the similar mean of .133 and median of .127. However, the distribution is not normal in that it does not resemble a bell curve; with exceptions, the data is somewhat evenly distributed from the minimum to near the maximum (although there is some trail-off towards the right side of the distribution). This non-normal spread is likely partially an indication of the fact that the dataset contains both offensive and defensive players, because whether a player is on offense or defense has a significant effect on their rebound percentage.
@@ -171,10 +190,16 @@ Next, we'll look at `USG_PCT`, usage percentage, which is an estimate of how oft
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= USG_PCT)) + 
   geom_histogram(binwidth = .01) +
-  labs(x = "Usage Percentage", y = "Count", title = "Distribution of Usage Percentage")
+  labs(x = "Usage Percentage", y = "Count",
+       title = "Distribution of Usage Percentage")
 
 nba_social_power_mod %>%
-  summarise(mean = mean(USG_PCT), min= min(USG_PCT), Q1 = quantile(USG_PCT, .25), median =   median(USG_PCT),  Q3 = quantile(USG_PCT, .75), max = max(USG_PCT))
+  summarise(mean = mean(USG_PCT),
+            min= min(USG_PCT),
+            Q1 = quantile(USG_PCT, .25),
+            median = median(USG_PCT),
+            Q3 = quantile(USG_PCT, .75),
+            max = max(USG_PCT))
 
 nba_social_power_mod %>%
   arrange(desc(USG_PCT)) %>%
@@ -188,10 +213,16 @@ Next, we'll examine `PIE`, player impact factor, a statistic roughly measuring a
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= PIE)) + 
   geom_histogram(binwidth = .01) +
-  labs(x = "Player Impact Factor", y = "Count", title = "Player Impact Factor Distribution")
+  labs(x = "Player Impact Factor", y = "Count",
+       title = "Player Impact Factor Distribution")
 
 nba_social_power_mod %>%
-  summarise(mean = mean(PIE), min= min(PIE), Q1 = quantile(PIE, .25), median =   median(PIE),  Q3 = quantile(PIE, .75), max = max(PIE))
+  summarise(mean = mean(PIE),
+            min= min(PIE),
+            Q1 = quantile(PIE, .25),
+            median = median(PIE),
+            Q3 = quantile(PIE, .75),
+            max = max(PIE))
 
 nba_social_power_mod %>%
   arrange(desc(PIE)) %>%
@@ -204,12 +235,20 @@ As we can see from the histogram, the player impact factor, with a minimum of .1
 Next, we'll look into players' salaries, in millions of dollars:
 
 ```{r}
-ggplot(data = nba_social_power_mod, aes(x= SALARY_MILLIONS)) + 
+ggplot(data = nba_social_power_mod,
+       aes(x = SALARY_MILLIONS)) + 
   geom_histogram(binwidth = 1) +
-  labs(x = "Player Salaries, in Millions of Dollars", y = "Count", title = "Distribution of Player Salaries")
+  labs(x = "Player Salaries, in Millions of Dollars",
+       y = "Count",
+       title = "Distribution of Player Salaries")
 
 nba_social_power_mod %>%
-  summarise(mean = mean(SALARY_MILLIONS), min= min(SALARY_MILLIONS), Q1 = quantile(SALARY_MILLIONS, .25), median =   median(SALARY_MILLIONS),  Q3 = quantile(SALARY_MILLIONS, .75), max = max(SALARY_MILLIONS))
+  summarise(mean = mean(SALARY_MILLIONS),
+            min= min(SALARY_MILLIONS),
+            Q1 = quantile(SALARY_MILLIONS, .25),
+            median = median(SALARY_MILLIONS),
+            Q3 = quantile(SALARY_MILLIONS, .75),
+            max = max(SALARY_MILLIONS))
 
 nba_social_power_mod %>%
   arrange(desc(SALARY_MILLIONS)) %>%
@@ -224,10 +263,17 @@ Next, we'll look at average points scored per game:
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= PTS)) + 
   geom_histogram(binwidth = 2) +
-  labs(x = "Average Points Scored Per Game", y = "Count", title = "Distribution of Average Points Scored Per Game")
+  labs(x = "Average Points Scored Per Game",
+       y = "Count",
+       title = "Distribution of Average Points Scored Per Game")
 
 nba_social_power_mod %>%
-  summarise(mean = mean(PTS), min= min(PTS), Q1 = quantile(PTS, .25), median =   median(PTS),  Q3 = quantile(PTS, .75), max = max(PTS))
+  summarise(mean = mean(PTS),
+            min= min(PTS),
+            Q1 = quantile(PTS, .25),
+            median = median(PTS),
+            Q3 = quantile(PTS, .75),
+            max = max(PTS))
 ```
 
 As we can see from the histogram, the distribution of average points scored is slightly normal, with some obvious departures from normality. The median number of points scored per game is 14.6, and the mean is 15.28232. The maximum is 31.6, but this does not seem to be an obvious outlier. 
@@ -247,12 +293,20 @@ Out of the 95 players in our modified dataset, 2 were not active on Twitter the 
 Finally, we'll look into the response variable, `TWITTER_FOLLOWER_COUNT_MILLIONS`:
 
 ```{r}
-ggplot(data = nba_social_power_mod, aes(x= TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
+ggplot(data = nba_social_power_mod,
+       aes(x= TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
   geom_histogram(binwidth = 2) +
-  labs(x = "Twitter Followers, in Millions", y = "Count", title = "Distribution of Twitter Follower Counts")
+  labs(x = "Twitter Followers, in Millions",
+       y = "Count",
+       title = "Distribution of Twitter Follower Counts")
 
 nba_social_power_mod %>%
-  summarise(mean = mean(TWITTER_FOLLOWER_COUNT_MILLIONS), min= min(TWITTER_FOLLOWER_COUNT_MILLIONS), Q1 = quantile(TWITTER_FOLLOWER_COUNT_MILLIONS, .25), median =   median(TWITTER_FOLLOWER_COUNT_MILLIONS),  Q3 = quantile(TWITTER_FOLLOWER_COUNT_MILLIONS, .75), max = max(TWITTER_FOLLOWER_COUNT_MILLIONS))
+  summarise(mean = mean(TWITTER_FOLLOWER_COUNT_MILLIONS),
+            min= min(TWITTER_FOLLOWER_COUNT_MILLIONS),
+            Q1 = quantile(TWITTER_FOLLOWER_COUNT_MILLIONS, .25),
+            median =   median(TWITTER_FOLLOWER_COUNT_MILLIONS),
+            Q3 = quantile(TWITTER_FOLLOWER_COUNT_MILLIONS, .75),
+            max = max(TWITTER_FOLLOWER_COUNT_MILLIONS))
 
 nba_social_power_mod %>%
   arrange(desc(TWITTER_FOLLOWER_COUNT_MILLIONS)) %>%
@@ -290,10 +344,13 @@ Similarly to win percent, Twitter follower count and net rating seem to have a v
 Next, we'll look at the relationship between assist-to-turnovers ratio and Twitter follower count:
 
 ```{r}
-ggplot(nba_social_power_mod, aes(x = AST_RATIO, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
+ggplot(nba_social_power_mod, 
+       aes(x = AST_RATIO,
+           y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
   geom_point() + 
   labs(title = "Relationship Between Assist-Turnover Ratio and Twitter Follower Count", 
-       x = "Assist-Turnover Ratio", y = "Twitter Follower Count, in Millions")
+       x = "Assist-Turnover Ratio",
+       y = "Twitter Follower Count, in Millions")
 ```
 
 There is no evident relationship between assist-turnover ratio and Twitter follower count. 
@@ -301,10 +358,13 @@ There is no evident relationship between assist-turnover ratio and Twitter follo
 Next, we'll examine whether there is a relationship between rebound percentage and Twitter follower count:
 
 ```{r}
-ggplot(nba_social_power_mod, aes(x = REB_PCT, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
+ggplot(nba_social_power_mod, 
+       aes(x = REB_PCT,
+           y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
   geom_point() + 
   labs(title = "Relationship Between Rebound Percentage and Twitter Follower Count",
-       x = "Rebound Percentage", y = "Twitter Follower Count, in Millions")
+       x = "Rebound Percentage",
+       y = "Twitter Follower Count, in Millions")
 ```
 
 There is no evident relationship between rebound percentage and Twitter follower count. 
@@ -312,10 +372,13 @@ There is no evident relationship between rebound percentage and Twitter follower
 Next, we'll examine whether there is a relationship between usage percentage and Twitter follower count:
 
 ```{r}
-ggplot(nba_social_power_mod, aes(x = USG_PCT, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
+ggplot(nba_social_power_mod,
+       aes(x = USG_PCT,
+           y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
   geom_point() + 
   labs(title = "Relationship Between Usage Percentage and Twitter Follower Count",
-       x = "Usage Percentage", y = "Twitter Follower Count, in Millions")
+       x = "Usage Percentage",
+       y = "Twitter Follower Count, in Millions")
 ```
 
 There appears to be a very weak positive correlation between usage percentage and Twitter follower count; players with a high usage percentage tend to have more Twitter followers, on average, than those with a lower usage percentage. 
@@ -323,10 +386,12 @@ There appears to be a very weak positive correlation between usage percentage an
 Next, we'll examine whether there is a relationship between player impact factor and Twitter follower count:
 
 ```{r}
-ggplot(nba_social_power_mod, aes(x = PIE, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
+ggplot(nba_social_power_mod, 
+       aes(x = PIE, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
   geom_point() + 
   labs(title = "Relationship Between Player Impact Factor and Twitter Follower Count",
-       x = "Player Impact Factor", y = "Twitter Follower Count, in Millions")
+       x = "Player Impact Factor",
+       y = "Twitter Follower Count, in Millions")
 ```
 
 There appears to be a  somewhat positive correlation between player impact factor and Twitter follower count; players with a high player impact factor tend to have more Twitter followers, on average, than those with a lower player impact factor. 
@@ -334,10 +399,12 @@ There appears to be a  somewhat positive correlation between player impact facto
 Now, we'll look for a relationship between average points scored per game and Twitter follower count:
 
 ```{r}
-ggplot(nba_social_power_mod, aes(x = PTS, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
+ggplot(nba_social_power_mod,
+       aes(x = PTS, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
   geom_point() + 
   labs(title = "Relationship Between Avg. Points Scored and Twitter Follower Count",
-       x = "Avg. Points Scored", y = "Twitter Follower Count, in Millions")
+       x = "Avg. Points Scored",
+       y = "Twitter Follower Count, in Millions")
 ```
 
 There appears to be a weak positive correlation between average points scored and Twitter follower count; players with higher avg. points scored tend to have more Twitter followers than those with lower avg. points scored. 
@@ -348,7 +415,8 @@ Finally, we'll look for a relationship between player salaries and points scored
 ggplot(nba_social_power_mod, aes(x = SALARY_MILLIONS, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
   geom_point() + 
   labs(title = "Relationship Between Player Salaries and Twitter Follower Count",
-       x = "Salary, in Millions of Dollars", y = "Twitter Follower Count, in Millions")
+       x = "Salary, in Millions of Dollars",
+       y = "Twitter Follower Count, in Millions")
 ```
 
 There appears to be a positive correlation between salary and Twitter follower count; the players with higher salaries tend to have higher Twitter follower counts. 
@@ -372,9 +440,13 @@ nba_social_power_mod1 <- nba_social_power_mod %>%
 ```
 
 ```{r}
-ggplot(data = nba_social_power_mod1, aes(x = PIE, y = TWITTER_FOLLOWER_COUNT_MILLIONS, color = PTS_CAT)) +
+ggplot(data = nba_social_power_mod1,
+       aes(x = PIE, 
+           y = TWITTER_FOLLOWER_COUNT_MILLIONS,
+           color = PTS_CAT)) +
          geom_point() + 
-  labs(x = "Player Impact Factor", y= "Twitter Follower Count, in Millions", 
+  labs(x = "Player Impact Factor",
+       y= "Twitter Follower Count, in Millions", 
        color = "Avg. Points Scored per Game",
        title = "Relationship Between Pts Scored, Twitter Followers, and Player Impact Factor")
 ```
@@ -392,9 +464,13 @@ nba_social_power_mod1 <- nba_social_power_mod %>%
 ```
 
 ```{r}
-ggplot(data = nba_social_power_mod1, aes(x = SALARY_MILLIONS, y = TWITTER_FOLLOWER_COUNT_MILLIONS,color = W_PCT_CAT)) +
+ggplot(data = nba_social_power_mod1, 
+       aes(x = SALARY_MILLIONS, 
+           y = TWITTER_FOLLOWER_COUNT_MILLIONS,
+           color = W_PCT_CAT)) +
          geom_point() + 
-  labs(x = "Salary, in Millions", y = "Twitter Follower Count, in Millions", 
+  labs(x = "Salary, in Millions",
+       y = "Twitter Follower Count, in Millions", 
        color = "Proportion of Games Won",
        title = "Relationship Between Win Percentage,
        Twitter Followers, and Salary")
@@ -604,7 +680,7 @@ As we can see, none of the predictors have VIFs >= 10, so we are not concerned a
 
 ### Impact of Prominent Players
 
-Lastly, before proceeding to discuss assumptions, we would like to examine the impact of including versus excluding prominent athletes (e.g. LeBron James) in our model:
+Lastly, before proceeding to discuss assumptions, we would like to examine the impact of including versus excluding prominent athletes in our model. Since he is widely regarded as one of the best NBA players of all-time, we will use LeBron James as a case study for preliminary analysis:
 
 ```{r prominent-athletes}
 nba_social_power_mod %>%
@@ -652,14 +728,99 @@ nba_social_power_mod %>%
 
 Comparing the two equations, we notice a relatively sizable discrepancy in the slope coefficient of `w_pctCent`. This makes sense since LeBron has the twelfth-highest win percentage in the league (0.689), so eliminating him from the dataset dramatically affects the average win percentage (as well as the spread, or standard deviation).
 
-To more precisely determine whether LeBron James is an influential point, we will look at standardized residuals, leverage, and Cook's Distance:
+More generally, to determine whether prominent athletes are influential points, we will look at standardized residuals, leverage, and Cook's Distance:
 
-```{r influential-point}
+```{r leverage}
+augmented_data <- augment(m_final)
 
+augmented_data <- augmented_data %>%
+  mutate(obs_num = row_number())
+
+threshold <- ((2 * (3 + 1)) / 95) 
+
+ggplot(data = augmented_data, aes(x = obs_num, y = .hat)) + 
+  geom_point() + 
+  geom_hline(yintercept = threshold, color = "red") +
+  labs(x = "Observation Number",
+       y = "Leverage Value",
+       title = "Observation Number vs. Leverage Value")
+
+augmented_data %>%
+  filter(.hat > threshold) %>%
+  select(obs_num, .hat)
+
+nba_leverage <- nba_social_power_mod %>%
+  mutate(obs_num = row_number()) %>%
+  filter(obs_num == 5 | obs_num == 6 | obs_num == 38 |
+           obs_num == 63 | obs_num == 69 | obs_num == 75 |
+           obs_num == 78)
+
+nba_leverage %>%
+  select(obs_num, PLAYER_NAME)
 ```
 
-Since our objective is to accurately predict the Twitter follower counts of NBA players, it is probably best to exclude LeBron to avoid overestimating for less prominent athletes. Hence, we will continue with our analysis using the multiple linear regression model without LeBron James.
+Based on the threshold (`2(p + 1) / n`), Kevin Durant, LeBron James, Josh Huestis, JaVale McGee, David West, Jarnell Stokes, and Carmelo Anthony are considered high leverage players (and hence potential influential points).
+
+Now, to identify outliers within these candidates, we will look at the standardized residuals:
+
+```{r standardized-residuals}
+ggplot(data = augmented_data, aes(x = .fitted, y = .std.resid)) + 
+  geom_point() + 
+  geom_hline(yintercept = 2, color = "red") +
+  geom_hline(yintercept = -2, color = "red") + 
+  labs(x = "Predicted Number of Twitter Followers",
+       y = "Standardized Residuals",
+       title = "Standardized Residuals vs. Predicted Twitter Follower Counts")
+
+augmented_data %>%
+  filter(.std.resid > 2 | .std.resid < -2) %>%
+  select(obs_num, .std.resid)
+
+nba_std_resid <- nba_social_power_mod %>%
+  mutate(obs_num = row_number()) %>%
+  filter(obs_num == 6 | obs_num == 78)
+
+nba_std_resid %>%
+  select(obs_num, PLAYER_NAME)
+```
+
+The players with standardized residuals of magnitude greater than 2 are LeBron James and Carmelo Anthony--two players who are also classified as high leverage points. By definition, LeBron and Carmelo are outliers; however, it remains to be seen whether Carmelo impacts the regression line (we already examined LeBron's effect).
+
+To assess the impact of prominent athletes (identified by high leverage and/or high standardized residuals) on the regression line, we examine Cook's Distance:
+
+```{r Cooks-Distance}
+ggplot(data = augmented_data, aes(x = obs_num, y = .cooksd)) + 
+  geom_point(alpha = 0.3) + 
+  geom_hline(yintercept = 1, color = "red") +
+  labs(x = "Observation Number",
+       y = "Cook's Distance",
+       title = "Cook's Distance") +
+  geom_text(aes(label = ifelse(.cooksd > 1, as.character(obs_num), "")))
+
+nba_std_resid %>%
+  filter(obs_num == 6) %>%
+  select(obs_num, PLAYER_NAME)
+```
+
+It is clear from the plot of Cook's Distance vs. observation number that LeBron James is the only influential point.
+
+Since our objective is to accurately predict the Twitter follower counts of NBA players, it is probably best to exclude LeBron to avoid overestimating for less prominent athletes. Hence, we will continue our analysis by using the multiple linear regression model without LeBron James (`m_final_noLJ`).
+
+To conclude, we will display the final model once more:
+
+```{r final-model-no-LJ}
+tidy(m_final_noLJ, conf.int = TRUE) %>%
+  kable(format = "markdown", digits = 3)
+```
 
 ### Discussion of Assumptions
 
-*use model without LeBron (m_final_LJ)
+*use final model without LeBron (`m_final_noLJ`)
+*nba_social_power_mod2 (without LeBron, 94 observations)
+*5 missing observations due to players not having Twitter handles, describe why we choose to remove using missing data lecture stuff
+*use standardized residuals for the plot of the residuals vs. predictors and for the histogram and normal QQ-plot of residuals
+*linearity, constant variance, normality, independence
+
+### Interpretations
+
+### Additional Analysis
