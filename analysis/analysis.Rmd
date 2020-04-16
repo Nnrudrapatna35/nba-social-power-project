@@ -17,6 +17,7 @@ library(knitr)
 library(tidyverse)
 library(gridExtra)
 library(leaps)
+library(rms)
 ```
 
 ```{r load-data, message = FALSE}
@@ -216,7 +217,7 @@ nba_social_power_mod %>%
   head(10)
 ```
 
-As we can see from the histogram, the distribution of salaries is somewhat right-skewed, with most of the players making less than 20 million dollars a year. The mean salary is 11.3 million dollars a year. The player who earns the most, at 30.96 million dollars per year, is LeBron James. On the other hand, Russell Westbrook, Kevin Durant, Mike Conley, DeMar DeRozan, and Al Horford each earn 26.54 million dollars per year.
+As we can see from the histogram, the distribution of salaries is somewhat right-skewed, with most of the players making less than 20 million dollars a year. The mean salary is 11.3 million dollars a year. The player who earns the most, at 30.96 million dollars per year, is LeBron James (LeBron could be an influential point, so we will revisit this after the model selection phase). On the other hand, Russell Westbrook, Kevin Durant, Mike Conley, DeMar DeRozan, and Al Horford each earn 26.54 million dollars per year.
 
 Next, we'll look at average points scored per game: 
 
@@ -234,6 +235,9 @@ As we can see from the histogram, the distribution of average points scored is s
 Next, we'll examine the variable `ACTIVE_TWITTER_LAST_YEAR`, which tells us whether or not each player posted on Twitter the year before the data was collected:
 
 ```{r}
+nba_social_power_mod <- nba_social_power_mod %>%
+  mutate(ACTIVE_TWITTER_LAST_YEAR = as.factor(ACTIVE_TWITTER_LAST_YEAR))
+
 nba_social_power_mod %>%
   count(ACTIVE_TWITTER_LAST_YEAR)
 ```
@@ -425,9 +429,9 @@ In regard to model selection, we will begin by fitting a mutiple linear regressi
 
 Next, we will perform two iterations of backward selection on the first model: (i) using AIC as the selection criterion and (ii) using adjusted R-squared as the selection criterion. We decided against trying BIC as the selection criterion because we would prefer more terms in the final model as our objective is to predict the Twitter follower counts of NBA players using measures of athletic success (and predictions are generally more accurate with more relevant predictor variables).
 
-After completing the two iterations of backward selection, we will compare the resulting models and see whether certain terms are removed in both (which would suggest those terms are not particularly useful).
+After completing the two iterations of backward selection, we will compare the resulting models and see whether certain terms are removed in both (which would suggest those terms are not statistically significant).
 
-After obtaining a final model, we will examine the impact of including versus excluding prominent athletes (e.g. LeBron James) in our model since our objective is to design a model with the best predictive accuracy. We choose to analyze this at the end of the model selection phase because prominent athletes are also included in the population we want to understand when fitting the multiple linear regression model.
+After obtaining a final model, we will determine whether prominent athletes (e.g. LeBron James) are influential points by looking at standardized residuals, leverage, and Cook's Distance (this is important since our objective is to design a model with the best predictive accuracy). We will then learn the impact of including versus excluding prominent athletes in our model. We choose to analyze this at the end of the model selection phase because prominent athletes are also included in the population we want to understand when fitting the multiple linear regression model.
 
 ### Model 1
 
@@ -452,7 +456,7 @@ tidy(m1, conf.int = TRUE) %>%
   kable(format = "markdown", digits = 3)
 ```
 
-Based on the output, the equation of the linear model is: `TWITTER_FOLLOWER_COUNT_MILLIONS`-hat = -2.386 + 0.262 * `ageCent` + 0.017 * `ast_ratioCent` + 0.026 * `off_ratingCent` + 0.086 * `def_ratingCent` + 13.104 * `PIECent` + 7.689 * `reb_pctCent` + 0.052 * `usg_pctCent` + 0.086 * `salary_millionsCent` + 7.095 * `w_pctCent` + 0.063 * `ptsCent` + 3.523 * `ACTIVE_TWITTER_LAST_YEAR` + 0.999 * `salary_millionsCent * w_pct_Cent` + 1.293 * `PIECent * ptsCent`.
+Based on the output, the equation of the linear model is: `TWITTER_FOLLOWER_COUNT_MILLIONS`-hat = -2.386 + 0.262 * `ageCent` + 0.017 * `ast_ratioCent` + 0.026 * `off_ratingCent` + 0.086 * `def_ratingCent` + 13.104 * `PIECent` + 7.689 * `reb_pctCent` + 0.052 * `usg_pctCent` + 0.086 * `salary_millionsCent` + 7.095 * `w_pctCent` + 0.063 * `ptsCent` + 3.523 * `ACTIVE_TWITTER_LAST_YEAR1` + 0.999 * `salary_millionsCent * w_pct_Cent` + 1.293 * `PIECent * ptsCent`.
 
 ### Backward Selection (Iteration 1)
 
@@ -465,7 +469,7 @@ tidy(m1_aic, conf.int = TRUE) %>%
   kable(format = "markdown", digits = 3)
 ```
 
-Based on the output displayed above from the first iteration of backward selection (using AIC as the selection criterion), seven main effect terms (`ast_ratioCent` `off_ratingCent`, `def_ratingCent`, `reb_pctCent`, `usg_pctCent`, `ptsCent`, and `ACTIVE_TWITTER_LAST_YEAR`) and one interaction term (`PIECent` * `ptsCent`) were removed.
+Based on the output displayed above from the first iteration of backward selection (using AIC as the selection criterion), seven main effect terms (`ast_ratioCent` `off_ratingCent`, `def_ratingCent`, `reb_pctCent`, `usg_pctCent`, `ptsCent`, and `ACTIVE_TWITTER_LAST_YEAR1`) and one interaction term (`PIECent` * `ptsCent`) were removed.
 
 Hence, the equation of the selected linear model is: `TWITTER_FOLLOWER_COUNT_MILLIONS`-hat = 1.175 + 0.225 * `ageCent` + 27.461 * `PIECent` + 0.111 * `salary_millionsCent` + 6.294 * `w_pctCent` + 1.019 * `salary_millionsCent * w_pctCent`.
 
@@ -500,19 +504,17 @@ coef(m1_adjR, which.max(select_summary$adjr2))
 
 Based on the output displayed above from the second iteration of backward selection (using adjusted R-squared as the selection criterion), six main effect terms (`ast_ratioCent` `off_ratingCent`, `def_ratingCent`, `reb_pctCent`, `usg_pctCent`, and `ptsCent`) and one interaction term (`PIECent` * `ptsCent`) were removed.
 
-Hence, the equation of the selected linear model is: `TWITTER_FOLLOWER_COUNT_MILLIONS`-hat = -2.379 + 0.215 * `ageCent` + 28.560 * `PIECent` + 0.115 * `salary_millionsCent` + 6.638 * `w_pctCent` + 3.626 * `ACTIVE_TWITTER_LAST_YEAR` + 1.031 * `salary_millionsCent * w_pct_Cent`.
+Hence, the equation of the selected linear model is: `TWITTER_FOLLOWER_COUNT_MILLIONS`-hat = -2.379 + 0.215 * `ageCent` + 28.560 * `PIECent` + 0.115 * `salary_millionsCent` + 6.638 * `w_pctCent` + 3.626 * `ACTIVE_TWITTER_LAST_YEAR1` + 1.031 * `salary_millionsCent * w_pct_Cent`.
 
 ### Model Comparison: AIC vs. Adjusted R-squared
 
-We notice that the model selected using adjusted R-squared as the selection criterion included an additional term (`ACTIVE_TWITTER_LAST_YEAR`) which was omitted in the model selected based on the first iteration of backward selection (using AIC as the selection criterion). 
+We notice that the model selected using adjusted R-squared as the selection criterion includes an additional categorical term (`ACTIVE_TWITTER_LAST_YEAR1`) which was omitted in the model selected based on the first iteration of backward selection (using AIC as the selection criterion). 
 
-If we closely investigate the results of the `step()` function, we can see that `ACTIVE_TWITTER_LAST_YEAR` was the last predictor removed during the first iteration of backward selection. In fact, the difference in AIC between the final two steps is only `253.41 - 253.4 = 0.01`. Again, recalling our objective in this analysis--to predict Twitter follower counts of NBA players--we choose to leave `ACTIVE_TWITTER_LAST_YEAR` in the final model because the information provided by this categorical variable--whether the player maintained an active Twitter account during the 2015-2016 season--is clearly relevant to the response, `TWITTER_FOLLOWER_COUNT_MILLIONS` (which measures players' total Twitter follower counts). Also, when designing a model for predictive purposes, including more predictors (which are relevant) is generally accepted. However, we must consider how `TWITTER_FOLLOWER_COUNT_MILLIONS` will affect our model interpretations since it has a high p-value and a wide confidence interval including zero.
+If we closely investigate the results of the `step()` function, we can see that `ACTIVE_TWITTER_LAST_YEAR` was the last predictor removed during the first iteration of backward selection. In fact, the difference in AIC between the final two steps is only `253.41 - 253.4 = 0.01`.
 
-Now, as promised, we return to the issue of `PIECent`. Unfortunately, both selected models included `PIECent`; thus, we must decide whether to keep the variable in the model, or ignore the results from the two iterations of backward selection and remove it.
+This warrants further consideration:
 
-To answer this question, we will compare the AIC and adjusted R-squared values for the model selected based on the second iteration of backward selection (`m1_adjR`, which includes `ACTIVE_TWITTER_LAST_YEAR`) and the same model except without `PIECent`.
-
-```{r include-PIECent}
+```{r include-ACTIVE-TWITTER-LAST-YEAR}
 m1_modV1 <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS ~ ageCent +
                salary_millionsCent +
                PIECent +
@@ -520,43 +522,85 @@ m1_modV1 <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS ~ ageCent +
                ACTIVE_TWITTER_LAST_YEAR +
                salary_millionsCent * w_pctCent,
              data = nba_social_power_mod)
+
+tidy(m1_modV1, conf.int = TRUE) %>%
+  kable(format = "markdown", digits = 3)
+```
+
+Based on the p-value associated with the slope coefficient for `ACTIVE_TWITTER_LAST_YEAR1` (0.175) and the confidence interval associated with this coefficient (-1.648 to 8.899; includes zero), it is clear that `ACTIVE_TWITTER_LAST_YEAR` is not a significant predictor of `TWITTER_FOLLOWER_COUNT_MILLIONS`.   
+Again, recalling our objective in this analysis--to predict Twitter follower counts of NBA players--we choose to leave `ACTIVE_TWITTER_LAST_YEAR` out of the final model because, although the information provided by this categorical variable may, at first glance, appear relevant to the response, `TWITTER_FOLLOWER_COUNT_MILLIONS` (which measures players' total Twitter follower counts), the p-value and confidence interval associated with this predictor's slope coefficient suggests otherwise. When designing a model for predictive purposes, we are mostly interested in variables which are strong predictors of the response. Hence, we concur with the model selected by backward selection using AIC as the selection criterion in regard to `ACTIVE_TWITTER_LAST_YEAR`.
+
+Now, as promised, we return to the issue of `PIECent`. Unfortunately, both selected models included `PIECent`; thus, we must decide whether to keep the variable in the model, or to ignore the results from the two iterations of backward selection and remove it.
+
+To answer this question, we will compare the AIC and adjusted R-squared values for the model selected based on AIC as the selection criterion (first iteration) and the same model except without `PIECent`, remembering that we have already excluded `ACTIVE_TWITTER_LAST_YEAR`:
+
+```{r include-PIECent}
+m1_modV2 <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS ~ ageCent +
+               salary_millionsCent +
+               PIECent +
+               w_pctCent +
+               salary_millionsCent * w_pctCent,
+             data = nba_social_power_mod)
 ```
 
 ```{r exclude-PIECent}
-m1_modV2 <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS ~ ageCent +
+m1_modV3 <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS ~ ageCent +
                  salary_millionsCent +
                  w_pctCent +
-                 ACTIVE_TWITTER_LAST_YEAR +
                  salary_millionsCent * w_pctCent,
                data = nba_social_power_mod)
 ```
 
-```{r calc-AIC-adjR-include-PIECent}
-glance(m1_modV1)$AIC
-glance(m1_modV1)$adj.r.squared
-```
-
-```{r calc-AIC-adjR-exclude-PIECent}
+```{r AIC-adjR-include-PIECent}
 glance(m1_modV2)$AIC
 glance(m1_modV2)$adj.r.squared
 ```
 
-Based on the output of the `glance()` function, the AIC of the model with `PIECent` is 525.0067. Conversely, the AIC of the model without `PIECent` is 525.5473.
+```{r AIC-adjR-exclude-PIECent}
+glance(m1_modV3)$AIC
+glance(m1_modV3)$adj.r.squared
+```
 
-Moreover, the adjusted R-squared value for the model with `PIECent` is roughly 0.321, whereas the adjusted R-squared value for the model without `PIECent` is about 0.310. 
+Based on the output of the `glance()` function, the AIC of the model with `PIECent` is 525.001. Conversely, the AIC of the model without `PIECent` is 525.3083.
 
-Therefore, the model with `PIECent` maximizes adjusted R-squared and minimizes AIC. Hence, despite our qualms with the large standard error and high p-value, we will keep `PIECent` in the model. Of course, we will need to consider this information carefully when interpreting our model and evaluating its predictive capabailities.
+Moreover, the adjusted R-squared value for the model with `PIECent` is roughly 0.314, whereas the adjusted R-squared value for the model without `PIECent` is about 0.305. 
+
+Therefore, the model with `PIECent` maximizes adjusted R-squared and minimizes AIC. But our qualms with the large standard error, high p-value, and wide confidence interval (including zero) cannot be ignored, especially considering the purpose of our analysis--prediction. Hence, as with `ACTIVE_TWITTER_LAST_YEAR`, we will leave `PIECent` out of the model because including a variable which is not a strong predictor of the response will result in wider prediction intervals. 
+
+Of course, this means the only measures of athletic success remaining in the model are: mean-centered win percentage and (to a lesser degree due to salary cap restrictions) player salaries. Nevertheless, we have tailored our model selection phase towards our objective--predicting the number of Twitter followers--and cannot be too upset since such a model will yield relatively narrow prediction intervals.
+
+Now, examining the current model:
+
+```{r view-model-without-PIECent}
+tidy(m1_modV3, conf.int = TRUE) %>%
+  kable(format = "markdown", digits = 3)
+```
+
+But now we notice another problem: `ageCent` has a high p-value (0.071) and a confidence interval including zero. Hence, we will also remove `ageCent` using the same rationale as with `ACTIVE_TWITTER_LAST_YEAR` and `PIECent`.
 
 ### Final Model
 
 Thus, our final model is:
 
 ```{r final-model}
-tidy(m1_modV1, conf.int = TRUE) %>%
+m_final <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS ~ salary_millionsCent +
+                 w_pctCent +
+                 salary_millionsCent * w_pctCent,
+               data = nba_social_power_mod)
+
+tidy(m_final, conf.int = TRUE) %>%
   kable(format = "markdown", digits = 3)
 ```
 
-So, the equation of the final model is: `TWITTER_FOLLOWER_COUNT_MILLIONS`-hat = -2.379 + 0.215 * `ageCent` + 28.560 * `PIECent` + 0.115 * `salary_millionsCent` + 6.638 * `w_pctCent` + 3.626 * `ACTIVE_TWITTER_LAST_YEAR` + 1.031 * `salary_millionsCent * w_pct_Cent`.
+The equation of the final model is: `TWITTER_FOLLOWER_COUNT_MILLIONS`-hat = 1.184 + 0.163 * `salary_millionsCent` + 7.761 * `w_pctCent` + 0.997 * `salary_millionsCent * w_pct_Cent`.
+
+Lastly, we consider any potential concerns with multicollinearity:
+
+```{r multicollinearity}
+tidy(vif(m_final))
+```
+
+As we can see, none of the predictors have VIFs >= 10, so we are not concerned about multicollinearity. 
 
 ### Impact of Prominent Players
 
@@ -574,7 +618,7 @@ nba_social_power_mod %>%
   head(10)
 ```
 
-Based on the tables above, it is clear LeBron James is an outlier, both in regard to his annual salary and Twitter follower count. So, we will remove LeBron from the dataset and see how the model changes:
+Based on the tables above, it is seems like LeBron James is an outlier, both in regard to his annual salary and Twitter follower count. So, we will remove LeBron from the dataset and see how the model changes:
 
 ```{r removing-LeBron}
 nba_social_power_mod2 <- nba_social_power_mod %>%
@@ -588,24 +632,34 @@ Based on the `glimpse()` output, we can see LeBron has been removed from the dat
 Now, to assess the impact of his absence on the final model:
 
 ```{r model-without-LeBron}
-m1_modV3 <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS ~ ageCent +
-               salary_millionsCent +
-               PIECent +
-               w_pctCent +
-               ACTIVE_TWITTER_LAST_YEAR +
-               salary_millionsCent * w_pctCent,
-             data = nba_social_power_mod2)
+m_final_noLJ <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS ~ salary_millionsCent +
+                 w_pctCent +
+                 salary_millionsCent * w_pctCent,
+               data = nba_social_power_mod2)
 
-tidy(m1_modV3, conf.int = TRUE) %>%
+tidy(m_final_noLJ, conf.int = TRUE) %>%
   kable(format = "markdown", digits = 3)
 ```
 
-The equation of the final model without LeBron James is: `TWITTER_FOLLOWER_COUNT_MILLIONS`-hat = -1.358 + 0.128 * `ageCent` + 16.105 * `PIECent` + 0.082 * `salary_millionsCent` + 4.081 * `w_pctCent` + 2.490 * `ACTIVE_TWITTER_LAST_YEAR` + 0.472 * `salary_millionsCent * w_pct_Cent`.
+The equation of the final model without LeBron James is: `TWITTER_FOLLOWER_COUNT_MILLIONS`-hat = 1.087 + 0.109 * `salary_millionsCent` + 4.609 * `w_pctCent` + 0.431 * `salary_millionsCent * w_pct_Cent`.
 
-Comparing the two equations, we notice a huge discrepancy in the slope coefficient of `PIECent`. This makes sense since LeBron has the sixth-highest PIE in the league (0.183), so eliminating him from the dataset dramatically affects the mean PIE (as well as the spread, or standard deviation).
+```{r LeBron-relative-win-percentage}
+nba_social_power_mod %>%
+  arrange(desc(W_PCT)) %>%
+  select(PLAYER_NAME, W_PCT) %>%
+  head(15)
+```
+
+Comparing the two equations, we notice a relatively sizable discrepancy in the slope coefficient of `w_pctCent`. This makes sense since LeBron has the twelfth-highest win percentage in the league (0.689), so eliminating him from the dataset dramatically affects the average win percentage (as well as the spread, or standard deviation).
+
+To more precisely determine whether LeBron James is an influential point, we will look at standardized residuals, leverage, and Cook's Distance:
+
+```{r influential-point}
+
+```
 
 Since our objective is to accurately predict the Twitter follower counts of NBA players, it is probably best to exclude LeBron to avoid overestimating for less prominent athletes. Hence, we will continue with our analysis using the multiple linear regression model without LeBron James.
 
 ### Discussion of Assumptions
 
-*use model without LeBron (m1_modV3)
+*use model without LeBron (m_final_LJ)
