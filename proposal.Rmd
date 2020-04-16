@@ -68,7 +68,7 @@ library(knitr)
 ```
 
 ```{r load-data}
-nba_social_power <- read_csv("data/nba_2016_2017_100.csv")
+nba_social_power <- read_csv("data/nba.csv")
 ```
 
 Finally, we will examine the relevant variables in the dataset after removing players without Twitter handles (since social power cannot be easily measured for these players):
