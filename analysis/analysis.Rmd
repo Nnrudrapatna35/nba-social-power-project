@@ -840,7 +840,7 @@ Boris Diaw:
 
 Boris Diaw's Twitter followers are expected to be exp(1.034) = 2.813 million followers. He actually had 0.462 million Twitter followers. This time, his winning record made a significant impact in increasing this prediction.
 
-The model has poor preditive capacity. We would like some feedback about how to improve this by possibly adding more significant terms.
+The model has poor preditive capacity. The most likely reason this is the case is due to the large number of players on a basketball team (15) and the few stars in the NBA who have large amounts of Twitter followers (in the millions). We would like some feedback about how to improve this by possibly adding more significant terms.
 
 It is important to note that the dates at which these Twitter follow counts were recorded vary and do not perfectly coincide with the data collection of this dataset. However, the dataset itself only specifies that the data was collected during the 2016-2017 season, and these articles came from during the season as well.
 
