@@ -253,7 +253,7 @@ As we can see from the scatterplot, players with higher win percentages tend to 
 
 Before we proceed with the analysis, we will mean-center the quantitative variables:
 
-```{r mean-centering}
+```{r}
 nba_social_power_mod <- nba_social_power_mod %>%
   mutate(ageCent = AGE - mean(AGE),
          ast_ratioCent = AST_RATIO - mean(AST_RATIO),
@@ -429,7 +429,7 @@ But now we notice another problem: `ageCent` has a high p-value (0.071) and a co
 
 Thus, our final model is:
 
-```{r final-model}
+```{r}
 m_final <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS ~ salary_millionsCent +
                  w_pctCent +
                  salary_millionsCent * w_pctCent,
@@ -791,7 +791,58 @@ None of the variables have VIFs greater than or equal to 10, so there are no iss
 
 ### Interpretations
 
-### Additional Analysis
+``` {r final-model}
+tidy(m_final_adjust, conf.int = TRUE) %>%
+  kable(format = "markdown", digits = 3)
+```
+
+Again, the final model is displayed above. Its equation is: `log(TWITTER_FOLLOWER_COUNT_MILLIONS)`-hat = -1.401 + 0.133 * `salary_millionsCent` + 2.442 * `w_pctCent`.
+
+The intercept of the model is -1.401, which means that a player with an average salary of `r mean(nba_social_power_mod$salary_millionsCent)` and win percentage of `r mean(nba_social_power_mod$w_pctCent)` are expected to have exp(-1.401) million, or approximately 246,350.490, Twitter followers.
+
+The coefficient of `salary_millionsCent` is 0.133, which means that, for every 1 million increase in player salary, a player's Twitter followers are expected to multiply by a factor of exp(0.133).
+
+The coefficient of `w_pctCent` is 2.442. This coefficient is misleading, as an increase of 1 in win percent is only possible if a team has 0 wins. So, this coefficient is better explained by every 0.1 increase in team win percentage, a player's Twitter followers are expected to multiply by a factor of exp(0.2442).
+
+Interpreting coefficients is not particularly important, however, as our objective is to predict Twitter followers.
+
+### Predictions
+
+We have carefully selected 3 players from the 2016-2017 season who are not included in the dataset, and will test the model's predictive accuracy by comparing predicted Twitter follower counts to actual Twitter data from 2017. 
+
+Salary data was taken from ESPN  (http://www.espn.com/nba/salaries/_/year/2017/page/1), and win percent data was calculated from team data via Nba.com (https://stats.nba.com/players/traditional/?sort=PTS&dir=-1&Season=2016-17&SeasonType=Regular%20Season). The number of Twitter followers was collected from various articles written in 2017.
+
+Derrick Rose:
+
+`salary_millionsCent` = 21.3 million
+`w_pctCent` = 0.406
+
+-1.401 + 0.133 * (21.3) + 2.442 * (0.406) = 2.423
+
+Derrick Rose's Twitter followers are expected to be exp(2.423) = 11.28 million followers. He actually had 24.9 million Twitter followers, so this is an extreme overprediction.
+
+
+Wesley Matthews:
+
+`salary_millionsCent` = 17.1 million
+`w_pctCent` = 0.397
+
+-1.401 + 0.133 * (17.1) + 2.442 * (0.397) = 1.843
+
+Wesley Matthews's Twitter followers are expected to be exp(1.843) = 6.314 million Twitter followers. He actually had 0.241 million Twitter followers, another extreme overprediction. This can be attributed to his high salary, however, so the model overpredicts for that reason.
+
+Boris Diaw:
+
+`salary_millionsCent` = 12.3 million
+`w_pctCent` = 0.848
+
+-1.401 + 0.133 * (7) + 2.442 * (0.616) = 1.034
+
+Boris Diaw's Twitter followers are expected to be exp(1.034) = 2.813 million followers. He actually had 0.462 million Twitter followers. This time, his winning record made a significant impact in increasing this prediction.
+
+The model has poor preditive capacity. We would like some feedback about how to improve this by possibly adding more significant terms.
+
+It is important to note that the dates at which these Twitter follow counts were recorded vary and do not perfectly coincide with the data collection of this dataset. However, the dataset itself only specifies that the data was collected during the 2016-2017 season, and these articles came from during the season as well.
 
 ### Complete EDA: 
 
@@ -832,7 +883,7 @@ As we can see from the histogram, age is somewhat normally distributed in the da
 
 Now, we'll examine the distribution of win percent, `W_PCT`:
 
-```{r}
+```{r plot}
 ggplot(data = nba_social_power_mod, aes(x= W_PCT)) + 
   geom_histogram(binwidth = .05) +
   labs(x = "Win Percent", y = "Count", title = "Distribution of Win Percent")
