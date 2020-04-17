@@ -792,7 +792,7 @@ tidy(m_final_adjust2, conf.int = TRUE) %>%
   kable(format = "markdown", digits = 3)
 ```
 
-`TWITTER_FOLLOWER_COUNT_MILLIONS_LOG`-hat = -1.401 + 0.133 * `salary_millionsCent` + 2.442 * `pct_Cent`
+`log(TWITTER_FOLLOWER_COUNT_MILLIONS)`-hat = -1.398 + 0.133 * `salary_millionsCent` + 2.336 * `w_pctCent`.
 
 The p-values for each of these predictor variables are all < 0.05, so we know each of the predictor variables is a significant predictor for our response variable.
 
