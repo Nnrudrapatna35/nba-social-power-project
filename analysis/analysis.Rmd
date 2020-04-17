@@ -1021,3 +1021,17 @@ None of the variables have VIFs greater than or equal to 10, so there are no iss
 ### Interpretations
 
 ### Additional Analysis
+
+There may have been some slight linearity issues with our current model. Though there is not a discernible pattern in our residuals plot for salary, there was slight curvature, so we were interested to see if we could fix this with a log-transformation:
+
+```{r}
+m_final_add <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS_LOG ~ log(salary_millionsCent) 
+                     + w_pctCent 
+                  + log(salary_millionsCent) * w_pctCent,
+               data = nba_social_power_mod3)
+
+tidy(m_final_add, conf.int = TRUE) %>%
+  kable(format = "markdown", digits = 3)
+```
+
+Our p-values are extremely high for all coefficients, which means that predicted variables are  not significant predictors for the response variable. Therefore, we will not continue with this model, because our final model from before is significant and satisfies assumptions fairly well.
