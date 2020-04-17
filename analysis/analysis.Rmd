@@ -827,7 +827,7 @@ ggplot(data = m_final_aug, aes(x = .fitted, y = .std.resid)) +
 
 ```
 
-When observing for constant variance, the height of the cloud of points seems to be constant as you move from left to right. Therefore, constant variance is not satisfied. 
+When observing for constant variance, the height of the cloud of points seems to increase as you move from left to right. Points are clustered at the very left then grow to be more spare as you move along the graph. Therefore, constant variance is not satisfied. 
 
 There is no obvious pattern and the shape of the graph seems to be linear. Hence, this plot presents no issues with the linearity assumption. 
 
@@ -866,7 +866,8 @@ nba_social_power_mod2 <- nba_social_power_mod2 %>%
 ggplot(data = nba_social_power_mod2, mapping = aes(x = std_resid)) + geom_histogram() + labs(title = "Distribution of Standardized Residuals", x = "Standardized Residuals", y = "Count")
 ```
 
-Normality is supported because the histogram of residuals is normal because the distribution is unimodal and the distribution is symmetric.
+Normality is violated because the histogram of residuals is heavily right skewed because the height of the graphs decreases dramatically from right to left.
+
 
 ```{r}
 ggplot(data = nba_social_power_mod2, mapping = aes(sample = std_resid)) + stat_qq() + stat_qq_line() + labs(title = "QQ Plot")
@@ -888,20 +889,32 @@ ggplot(data = m_final_aug, aes(x = obs_num, y = .std.resid)) +
 
 Looking at the graph, there is no distinguishable pattern in the graph. The number of Twitter followers of one player will not affect the number of Twitter followers of another player. Therefore, independence is satisfied.
 
-Therefore, because constant variance and normality and linearity are not satisfied, but independence is, we will make some adjustments to our model. We can adjust for linearity by adding squared terms for salary and percentage of games played won because those standardized residuals vs. predictor variable plots violated linearity. For constant variance, we can log-transform the response variable because our standardized residuals vs. predicted values violated constant variance. Lastly, for normality regression is robust to depatures from normality and the departure from normality is not extreme, so we will not make any adjustments. 
+Therefore, because constant variance and normality and linearity are not satisfied, but independence is, we will make some adjustments to our model. We can adjust for linearity by adding squared terms for salary and percentage of games played won because those standardized residuals vs. predictor variable plots violated linearity. For constant variance, we can log-transform the response variable because our standardized residuals vs. predicted values violated constant variance. Lastly, for normality regression there were outliers observed in the histograms, so we can try to remove all 7 outlier players from our model as mentioned previously above because Kevin Durant, LeBron James, Josh Huestis, JaVale McGee, David West, Jarnell Stokes, and Carmelo Anthony are considered high leverage players (and hence potential influential points).
 
 After making these adjustments our model looks like this:
 
 ```{r}
-nba_social_power_mod2 <- nba_social_power_mod2 %>%
-  mutate(TWITTER_FOLLOWER_COUNT_MILLIONS_LOG = log(TWITTER_FOLLOWER_COUNT_MILLIONS))
+nba_social_power_mod3 <- nba_social_power_mod2 %>%
+  mutate(TWITTER_FOLLOWER_COUNT_MILLIONS_LOG = log(TWITTER_FOLLOWER_COUNT_MILLIONS)) %>%
+  filter(PLAYER_NAME != "Kevin Durant" & PLAYER_NAME != "James Huestis" & PLAYER_NAME != "JaVale McGee" & PLAYER_NAME != "David West" & PLAYER_NAME != "Jarnell Stokes" & PLAYER_NAME != "Carmelo Anthony")
 
 m_final_adjust <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS_LOG ~ salary_millionsCent 
                      + I(salary_millionsCent * salary_millionsCent)
                      + w_pctCent 
                  + I(w_pctCent * w_pctCent)
                  + salary_millionsCent * w_pctCent,
-               data = nba_social_power_mod2)
+               data = nba_social_power_mod3)
+
+tidy(m_final_adjust, conf.int = TRUE) %>%
+  kable(format = "markdown", digits = 3)
+```
+
+However, because the interaction effect and w_pctCent squared terms and the salary_millionsCent have p-values that are very large and > 0.05, we will remove them from our model to produce this model. We will attempt to see if the log transformation of our response variable is enough to support our assumptions.
+
+```{r}
+m_final_adjust <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS_LOG ~ salary_millionsCent 
+                     + w_pctCent,
+               data = nba_social_power_mod3)
 
 tidy(m_final_adjust, conf.int = TRUE) %>%
   kable(format = "markdown", digits = 3)
@@ -921,7 +934,7 @@ ggplot(data = m_final_adj_aug, aes(x = .fitted, y = .std.resid)) +
 
 ```
 
-When observing for constant variance, the height of the cloud of points seems to increase as you move from left to right. Points are clustered at the very left then grow to be more spare as you move along the graph. Therefore, constant variance is not satisfied. 
+When observing for constant variance, the height of the cloud of points seems to be constant as you move from left to right. Therefore, constant variance is satisfied.
 
 There is no obvious pattern and the shape of the graph seems to be linear. Hence, this plot presents no issues with the linearity assumption. 
 
@@ -933,10 +946,9 @@ ggplot(data = m_final_adj_aug, aes(x = salary_millionsCent, y = .std.resid)) +
   geom_hline(yintercept = 0, color = "red") +
   labs(x = "Salary (Millions)", y = "Standardized Residuals", 
        title = "Standardized Residuals vs. Salary (Millions)")
-
 ```
 
-There looks to be no distinguishable pattern in the plot. Thus, this plot does not violate linearity.
+There is no distinguishable pattern in our plot because there are no discernible curves. Therefore, we satisfy linearity.
 
 ```{r}
 ggplot(data = m_final_adj_aug, aes(x = w_pctCent, y = .std.resid)) +
@@ -952,18 +964,18 @@ There looks to be no distinguishable pattern in the plot as well, so therefore l
 Next, we will check for the normality assumption by creating a histogram of the residuals and a normal QQ-plot of the residuals.
 
 ```{r}
-nba_social_power_mod2 <- nba_social_power_mod2 %>%
-  mutate(predicted = predict.lm(m_final_noLJ), std_resid = rstandard(m_final_noLJ))
+nba_social_power_mod3 <- nba_social_power_mod3 %>%
+  mutate(predicted = predict.lm(m_final_adjust), std_resid = rstandard(m_final_adjust))
 ```
 
 ```{r}
-ggplot(data = nba_social_power_mod2, mapping = aes(x = std_resid)) + geom_histogram() + labs(title = "Distribution of Standardized Residuals",
+ggplot(data = nba_social_power_mod3, mapping = aes(x = std_resid)) + geom_histogram() + labs(title = "Distribution of Standardized Residuals",
                                                                                          x = "Standardized Residuals",
                                                                                          y = "Count")
 
 ```
 
-Normality is supported because the histogram of residuals is normal because the distribution is unimodal and the distribution is symmetric.
+Normality is not supported because the histogram of residuals is not normal and is now slightly left skewed because the height increases as you move across the graph, then drastically decreases, but the distribution is unimodal. 
 
 ```{r}
 ggplot(data = nba_social_power_mod2, mapping = aes(sample = std_resid)) + stat_qq() + stat_qq_line() + labs(title = "QQ Plot")
@@ -985,21 +997,23 @@ ggplot(data = m_final_aug, aes(x = obs_num, y = .std.resid)) +
 
 Looking at the graph, there is no distinguishable pattern in the graph. The number of Twitter followers of one player will not affect the number of Twitter followers of another player. Therefore, independence is satisfied.
 
-Therefore, linearity, constant variance, and independence are satsified from our new model, but normality still has deviations. However, regression accepts robust departures from normality, so we will proceed with our new model for interpretations. This is displayed here one more time for clarification:
+Linearity, constant variance, and normality are all satisfied in this model. We have done everything we can to the best of our knowledge to fix normality, so we will continue on with this model for interpretations. Our final model output is:
 
 ```{r}
 tidy(m_final_adjust, conf.int = TRUE) %>%
   kable(format = "markdown", digits = 3)
 ```
 
-The equation of the final model is: `log(TWITTER_FOLLOWER_COUNT_MILLIONS)`-hat = -1.201 + 0.154 * `salary_millionsCent` + -0.003 * `salary_millionsCent * salary_millionsCent` + 2.299 * `w_pctCent` + 5.775 * `w_pctCent * w_pctCent` +  -0.111 * `salary_millionsCent * w_pct_Cent`.
+`TWITTER_FOLLOWER_COUNT_MILLIONS_LOG`-hat = -1.401 + 0.133 * `salary_millionsCent` + 2.442 * `pct_Cent`
+
+The p-values for each of these predictor variables are all < 0.05, so we know each of the predictor variables is a significant predictor for our response variable.
 
 Lastly, we will also check for multicollinearity in our model. If two or more predictor variables are highly correlated in our model, our regression may change eratically in response to small changes in our data. 
 
 We will check the variance inflation factor (VIF) for every predictor variable to check for concerns with multicollinearity:
 
 ```{r vif}
-tidy(vif(m_final_noLJ))
+tidy(vif(m_final_adjust))
 ```
 
 None of the variables have VIFs greater than or equal to 10, so there are no issues with multicollinearity.
