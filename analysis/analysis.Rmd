@@ -608,7 +608,8 @@ Next, we will observe the plot of residuals vs. predictors:
 ggplot(data = m_final_aug, aes(x = salary_millionsCent, y = .std.resid)) +
   geom_point(alpha = 0.5) + 
   geom_hline(yintercept = 0, color = "red") +
-  labs(x = "Salary (Millions)", y = "Standardized Residuals", 
+  labs(x = "Salary (Millions)", 
+       y = "Standardized Residuals", 
        title = "Standardized Residuals vs. Salary (Millions)")
 
 ```
@@ -619,7 +620,8 @@ There looks to be a pattern in the plot because towards the end it curves upward
 ggplot(data = m_final_aug, aes(x = w_pctCent, y = .std.resid)) +
   geom_point(alpha = 0.5) + 
   geom_hline(yintercept = 0, color = "red") +
-  labs(x = "Percentage of Games Played Won", y = "Standardized Residuals", 
+  labs(x = "Percentage of Games Played Won", 
+       y = "Standardized Residuals", 
        title = "Standardized Residuals vs. Percentage of Games Played Won")
 
 ```
@@ -634,14 +636,19 @@ nba_social_power_mod2 <- nba_social_power_mod2 %>%
 ```
 
 ```{r}
-ggplot(data = nba_social_power_mod2, mapping = aes(x = std_resid)) + geom_histogram() + labs(title = "Distribution of Standardized Residuals", x = "Standardized Residuals", y = "Count")
+ggplot(data = nba_social_power_mod2, mapping = aes(x = std_resid)) + geom_histogram() + labs(title = "Distribution of Standardized Residuals", 
+                                                                                             x = "Standardized Residuals", 
+                                                                                             y = "Count")
 ```
 
 Normality is violated because the histogram of residuals is heavily right skewed because the height of the graphs decreases dramatically from right to left.
 
 
 ```{r}
-ggplot(data = nba_social_power_mod2, mapping = aes(sample = std_resid)) + stat_qq() + stat_qq_line() + labs(title = "QQ Plot")
+ggplot(data = nba_social_power_mod2, mapping = aes(sample = std_resid)) + 
+  stat_qq() +
+  stat_qq_line() +
+  labs(title = "QQ Plot")
 ```
 
 However, normality is not satisfied because some of the points don't follow the diagonal line. 
@@ -652,9 +659,11 @@ Lastly, we will check for independence. Data was not taken over time, so we know
 m_final_aug <- m_final_aug %>%
   mutate(obs_num = 1:nrow(m_final_aug))
 
-ggplot(data = m_final_aug, aes(x = obs_num, y = .std.resid)) + 
+ggplot(data = m_final_aug, aes(x = obs_num, 
+                               y = .std.resid)) + 
   geom_point(alpha = 0.3) +
-  labs(x = "Observation Number", y = "Residuals", 
+  labs(x = "Observation Number", 
+       y = "Residuals", 
        title = "Residuals vs. Observation Number")
 ```
 
@@ -669,25 +678,25 @@ nba_social_power_mod3 <- nba_social_power_mod2 %>%
   mutate(TWITTER_FOLLOWER_COUNT_MILLIONS_LOG = log(TWITTER_FOLLOWER_COUNT_MILLIONS)) %>%
   filter(PLAYER_NAME != "Kevin Durant" & PLAYER_NAME != "Josh Huestis" & PLAYER_NAME != "JaVale McGee" & PLAYER_NAME != "David West" & PLAYER_NAME != "Jarnell Stokes" & PLAYER_NAME != "Carmelo Anthony")
 
-m_final_adjust <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS_LOG ~ salary_millionsCent 
+m_final_adjust1 <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS_LOG ~ salary_millionsCent 
                      + I(salary_millionsCent * salary_millionsCent)
                      + w_pctCent 
                  + I(w_pctCent * w_pctCent)
                  + salary_millionsCent * w_pctCent,
                data = nba_social_power_mod3)
 
-tidy(m_final_adjust, conf.int = TRUE) %>%
+tidy(m_final_adjust1, conf.int = TRUE) %>%
   kable(format = "markdown", digits = 3)
 ```
 
-However, because the interaction effect and w_pctCent squared terms and the salary_millionsCent have p-values that are very large and > 0.05, we will remove them from our model to produce this model. We will attempt to see if the log transformation of our response variable is enough to support our assumptions.
+However, because the interaction effect and `w_pctCent` squared terms and the `salary_millionsCent` have p-values that are very large and > 0.05, we will remove them from our model to produce this model. We will attempt to see if the log transformation of our response variable is enough to support our assumptions.
 
 ```{r}
-m_final_adjust <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS_LOG ~ salary_millionsCent 
+m_final_adjust2 <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS_LOG ~ salary_millionsCent 
                      + w_pctCent,
                data = nba_social_power_mod3)
 
-tidy(m_final_adjust, conf.int = TRUE) %>%
+tidy(m_final_adjust2, conf.int = TRUE) %>%
   kable(format = "markdown", digits = 3)
 ```
 
@@ -696,13 +705,13 @@ We will check for all assumptions again:
 First, we will check for linearity and whether the response variable has a linear relationship with the predictor variables in the model. We will check the plot of standardized residuals vs. predicted values:
 
 ```{r}
-m_final_adj_aug <- augment(m_final_adjust)
+m_final_adj_aug <- augment(m_final_adjust2)
 ggplot(data = m_final_adj_aug, aes(x = .fitted, y = .std.resid)) +
   geom_point(alpha = 0.5) + 
   geom_hline(yintercept = 0, color = "red") +
-  labs(x = "Predicted", y = "Standardized Residuals", 
+  labs(x = "Predicted", 
+       y = "Standardized Residuals", 
        title = "Standardized Residuals vs. Predicted")
-
 ```
 
 When observing for constant variance, the height of the cloud of points seems to be constant as you move from left to right. Therefore, constant variance is satisfied.
@@ -715,7 +724,8 @@ Next, we will observe the plot of residuals vs. predictors:
 ggplot(data = m_final_adj_aug, aes(x = salary_millionsCent, y = .std.resid)) +
   geom_point(alpha = 0.5) + 
   geom_hline(yintercept = 0, color = "red") +
-  labs(x = "Salary (Millions)", y = "Standardized Residuals", 
+  labs(x = "Salary (Millions)",
+       y = "Standardized Residuals", 
        title = "Standardized Residuals vs. Salary (Millions)")
 ```
 
@@ -725,7 +735,8 @@ There is no distinguishable pattern in our plot because there are no discernible
 ggplot(data = m_final_adj_aug, aes(x = w_pctCent, y = .std.resid)) +
   geom_point(alpha = 0.5) + 
   geom_hline(yintercept = 0, color = "red") +
-  labs(x = "Percentage of Games Played Won", y = "Standardized Residuals", 
+  labs(x = "Percentage of Games Played Won",
+       y = "Standardized Residuals", 
        title = "Standardized Residuals vs. Percentage of Games Played Won")
 
 ```
@@ -736,7 +747,8 @@ Next, we will check for the normality assumption by creating a histogram of the 
 
 ```{r}
 nba_social_power_mod3 <- nba_social_power_mod3 %>%
-  mutate(predicted = predict.lm(m_final_adjust), std_resid = rstandard(m_final_adjust))
+  mutate(predicted = predict.lm(m_final_adjust2),
+         std_resid = rstandard(m_final_adjust2))
 ```
 
 ```{r}
@@ -749,7 +761,10 @@ ggplot(data = nba_social_power_mod3, mapping = aes(x = std_resid)) + geom_histog
 Normality is not supported because the histogram of residuals is not normal and is now slightly left skewed because the height increases as you move across the graph, then drastically decreases, but the distribution is unimodal. 
 
 ```{r}
-ggplot(data = nba_social_power_mod2, mapping = aes(sample = std_resid)) + stat_qq() + stat_qq_line() + labs(title = "QQ Plot")
+ggplot(data = nba_social_power_mod2, mapping = aes(sample = std_resid)) +
+  stat_qq() +
+  stat_qq_line() +
+  labs(title = "QQ Plot")
 ```
 
 However, normality is not satisfied because some of the points don't follow the diagonal line. 
@@ -760,9 +775,11 @@ Lastly, we will check for independence. Data was not taken over time, so we know
 m_final_adj_aug <- m_final_adj_aug %>%
   mutate(obs_num = 1:nrow(m_final_adj_aug))
 
-ggplot(data = m_final_aug, aes(x = obs_num, y = .std.resid)) + 
+ggplot(data = m_final_aug, aes(x = obs_num,
+                               y = .std.resid)) + 
   geom_point(alpha = 0.3) +
-  labs(x = "Observation Number", y = "Standardized Residuals", 
+  labs(x = "Observation Number",
+       y = "Standardized Residuals", 
        title = "Standardized Residuals vs. Observation Number")
 ```
 
@@ -771,7 +788,7 @@ Looking at the graph, there is no distinguishable pattern in the graph. The numb
 Linearity, constant variance, and normality are all satisfied in this model. We have done everything we can to the best of our knowledge to fix normality, so we will continue on with this model for interpretations. Our final model output is:
 
 ```{r}
-tidy(m_final_adjust, conf.int = TRUE) %>%
+tidy(m_final_adjust2, conf.int = TRUE) %>%
   kable(format = "markdown", digits = 3)
 ```
 
@@ -784,7 +801,7 @@ Lastly, we will also check for multicollinearity in our model. If two or more pr
 We will check the variance inflation factor (VIF) for every predictor variable to check for concerns with multicollinearity:
 
 ```{r vif}
-tidy(vif(m_final_adjust))
+tidy(vif(m_final_adjust2))
 ```
 
 None of the variables have VIFs greater than or equal to 10, so there are no issues with multicollinearity.
@@ -792,17 +809,21 @@ None of the variables have VIFs greater than or equal to 10, so there are no iss
 ### Interpretations
 
 ``` {r final-model}
-tidy(m_final_adjust, conf.int = TRUE) %>%
+tidy(m_final_adjust2, conf.int = TRUE) %>%
   kable(format = "markdown", digits = 3)
+
+nba_social_power_mod %>%
+  summarise(mean_salary = mean(SALARY_MILLIONS),
+            mean_winpct = mean(W_PCT))
 ```
 
-Again, the final model is displayed above. Its equation is: `log(TWITTER_FOLLOWER_COUNT_MILLIONS)`-hat = -1.401 + 0.133 * `salary_millionsCent` + 2.442 * `w_pctCent`.
+Again, the final model is displayed above. Its equation is: `log(TWITTER_FOLLOWER_COUNT_MILLIONS)`-hat = -1.398 + 0.133 * `salary_millionsCent` + 2.336 * `w_pctCent`.
 
-The intercept of the model is -1.401, which means that a player with an average salary of `r mean(nba_social_power_mod$salary_millionsCent)` and win percentage of `r mean(nba_social_power_mod$w_pctCent)` are expected to have exp(-1.401) million, or approximately 246,350.490, Twitter followers.
+The intercept of the model is -1.398, which means that a player with a salary of 11.3 million dollars (average salary) and win percentage of 0.511 (average win percentage) are expected to have exp(-1.398) million, or approximately 247,090.7, Twitter followers.
 
-The coefficient of `salary_millionsCent` is 0.133, which means that, for every 1 million increase in player salary, a player's Twitter followers are expected to multiply by a factor of exp(0.133).
+The coefficient of `salary_millionsCent` is 0.133, which means that, for every 1 million increase in player salary, a player's Twitter followers are expected to multiply by a factor of exp(0.133) = 1.142, holding all else constant.
 
-The coefficient of `w_pctCent` is 2.442. This coefficient is misleading, as an increase of 1 in win percent is only possible if a team has 0 wins. So, this coefficient is better explained by every 0.1 increase in team win percentage, a player's Twitter followers are expected to multiply by a factor of exp(0.2442).
+The coefficient of `w_pctCent` is 2.336. This coefficient is misleading, as an increase of 1 in win percent is only possible if a team has 0 wins. So, this coefficient is better explained by every 0.1 increase in team win percentage, a player's Twitter followers are expected to multiply by a factor of exp(0.2336) = 1.263, holding all else constant.
 
 Interpreting coefficients is not particularly important, however, as our objective is to predict Twitter followers.
 
@@ -810,37 +831,36 @@ Interpreting coefficients is not particularly important, however, as our objecti
 
 We have carefully selected 3 players from the 2016-2017 season who are not included in the dataset, and will test the model's predictive accuracy by comparing predicted Twitter follower counts to actual Twitter data from 2017. 
 
-Salary data was taken from ESPN  (http://www.espn.com/nba/salaries/_/year/2017/page/1), and win percent data was calculated from team data via Nba.com (https://stats.nba.com/players/traditional/?sort=PTS&dir=-1&Season=2016-17&SeasonType=Regular%20Season). The number of Twitter followers was collected from various articles written in 2017.
+Salary data was taken from ESPN (www.espn.com), and win percent data was calculated from team data (stats.nba.com). The number of Twitter followers was collected from various articles written in 2017.
 
 Derrick Rose:
 
-`salary_millionsCent` = 21.3 million
-`w_pctCent` = 0.406
+`salary_millionsCent` = 21.3 - 11.3 = 10 
+`w_pctCent` = 0.406 - 0.511 = -0.105
 
--1.401 + 0.133 * (21.3) + 2.442 * (0.406) = 2.423
+-1.398 + 0.133 * (10) + 2.336 * (-0.105) = -0.313
 
-Derrick Rose's Twitter followers are expected to be exp(2.423) = 11.28 million followers. He actually had 24.9 million Twitter followers, so this is an extreme overprediction.
-
+Derrick Rose's Twitter followers are expected to be exp(-0.313) = 731,249.9 followers. He actually had 2.49 million Twitter followers, so this is an extreme underprediction.
 
 Wesley Matthews:
 
-`salary_millionsCent` = 17.1 million
-`w_pctCent` = 0.397
+`salary_millionsCent` = 17.1 - 11.3 = 5.8 
+`w_pctCent` = 0.397 - 0.511 = -0.114
 
--1.401 + 0.133 * (17.1) + 2.442 * (0.397) = 1.843
+-1.398 + 0.133 * (5.8) + 2.336 * (-0.114) = -0.893
 
-Wesley Matthews's Twitter followers are expected to be exp(1.843) = 6.314 million Twitter followers. He actually had 0.241 million Twitter followers, another extreme overprediction. This can be attributed to his high salary, however, so the model overpredicts for that reason.
+Wesley Matthews's Twitter followers are expected to be exp(-0.893) = 409,425.6 Twitter followers. He actually had 241,000 Twitter followers, so this is another overprediction. This might be attributed to his high salary, however, so the model overpredicts for that reason.
 
 Boris Diaw:
 
-`salary_millionsCent` = 12.3 million
-`w_pctCent` = 0.848
+`salary_millionsCent` = 7 - 11.3 = -4.3
+`w_pctCent` = 0.616 - 0.511 = 0.105
 
--1.401 + 0.133 * (7) + 2.442 * (0.616) = 1.034
+-1.398 + 0.133 * (-4.3) + 2.336 * (0.105) = -1.725
 
-Boris Diaw's Twitter followers are expected to be exp(1.034) = 2.813 million followers. He actually had 0.462 million Twitter followers. This time, his winning record made a significant impact in increasing this prediction.
+Boris Diaw's Twitter followers are expected to be exp(-1.725) = 178,173.1 followers. He actually had 462,000 Twitter followers (gross underestimate). This time, his salary contributed to the underprediction.
 
-The model has poor preditive capacity. The most likely reason this is the case is due to the large number of players on a basketball team (15) and the few stars in the NBA who have large amounts of Twitter followers (in the millions). We would like some feedback about how to improve this by possibly adding more significant terms.
+The model has poor preditive capacity. The most likely reason this is the case is due to the large number of players on a basketball team (15) and the few stars in the NBA who have large amounts of Twitter followers (in the millions).  We would like some feedback about how to improve this by possibly adding more significant terms.
 
 It is important to note that the dates at which these Twitter follow counts were recorded vary and do not perfectly coincide with the data collection of this dataset. However, the dataset itself only specifies that the data was collected during the 2016-2017 season, and these articles came from during the season as well.
 
@@ -1085,9 +1105,6 @@ ggplot(nba_social_power_mod,
 ```
 
 There is no evident relationship between rebound percentage and Twitter follower count. 
-
-
-
 
 There may have been some slight linearity issues with our current model. Though there is not a discernible pattern in our residuals plot for salary, there was slight curvature, so we were interested to see if we could fix this with a log-transformation:
 
