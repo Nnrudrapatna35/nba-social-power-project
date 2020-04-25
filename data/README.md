@@ -1,8 +1,8 @@
-# data
+# Data
 
-The dimensions of the original dataset (`nba_social_power`) were 100 observations and 63 variables. However, we are using a reduced version of the full dataset (`nba_social_power_mod`) for analysis, which only includes 95 observations and 15 variables. The number of observations decreased because we decided to remove players who did not have Twitter handles.
+The dimensions of the original dataset (`nba_social_power`) were 100 observations and 63 variables. However, we are using a reduced version of the full dataset (`nba_social_power_mod`) for analysis, which only includes 95 observations and 17 variables. The number of observations decreased because we decided to remove players who did not have Twitter handles.
 
-Below is the data dictionary describing the 15 variables we have decided to use in our analysis.
+Below is the data dictionary describing the 17 variables we have decided to use in our analysis.
 
 Data Dictionary:
 
@@ -18,11 +18,9 @@ OFF_RATING: Player offensive rating calculated using the formula - Offensive Pro
 
 DEF_RATING: Player defensive rating -  Defensive Player Rating = (Players Steals * Blocks) + Opponents Differential = 1/5 of possessions - Times blown by + Deflections * OAPDW (Official Adjusted Players Defensive Withstand) (quantitative)
 
-NET_RATING: Average of the offensive/defensive rating (quantitative)
-
 AST_RATIO: Assists-to-turnovers ratio (quantitative)
 
-REB_PCT: Total rebounds (quantitative)
+REB_PCT: Rebound percentage (quantitative)
 
 USG_PCT: Usage percentage, an estimate of how often a player makes team plays (quantitative)
 
@@ -34,5 +32,10 @@ TWITTER_FOLLOWER_COUNT_MILLIONS: Number of Twitter followers (quantitative)
 
 TWITTER_HANDLE: Twitter handle (categorical)
 
+ACTIVE_TWITTER_LAST_YEAR: Whether the player had an active Twitter account in 2015-2016 (categorical)
+
 PTS: Points scored (quantitative)
 
+FGM: Field goals made (quantitative)
+
+FGA: Field goals attempted (quantitative)
