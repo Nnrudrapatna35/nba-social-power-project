@@ -2,14 +2,11 @@
 title: "Final Writeup"
 author: "Pipe It Up!: Nagaprasad Rudrapatna, Karen Deng, Jackson Muraika, Anna Zolotor"
 date: "`r Sys.Date()`"
-output: 
-  pdf_document:
-    fig_width: 3
-    fig_height: 3
+output: pdf_document
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 ```
 
 ```{r load-packages, message = FALSE}
@@ -50,22 +47,14 @@ nba_social_power_mod <- nba_social_power %>%
 
 ### Section 1: Introduction
 
-In this project, Pipe it Up has used the Kaggle dataset "Social Power NBA" to explore the following research question:  Is there a relationship between measures of basketball success (such as win percentage and offensive/defensive ratings) and Internet popularity, measured in number of Twitter followers? The motivation for this analysis stems from the increasing relevance of social media in today’s hyperconnected world.
-Social media provides a platform for people to share stories and opinions, and influential people, especially
-athletes, have considerable sway over large segments of the population. Additionally, since the NBA is a
-star-driven league due to its small team size and worldwide recognition, social media presence is significant
-for basketball players. The original creator of our Kaggle dataset, UC Davis and Northwestern professor
-Noah Gift, conducted analyses to determine which factors relating to basketball success social media and
-internet popularity could accurately predict. He searched for correlation between those factors and a number
-of response variables, including arena attendance, endorsements, salary, and NBA performance. Our team
-was fascinated by the statistician’s conclusions, but we wanted to take the reverse approach and determine
-which factors (relating to basketball success) can predict the social media popularity that he claims is so
-important.
+In this project, Pipe it Up! used the Kaggle dataset "Social Power NBA" to explore the following research question: Is there a relationship between measures of basketball success (such as win percentage and offensive/defensive ratings) and Internet popularity, measured in number of Twitter followers? The motivation for this analysis stems from the increasing relevance of social media in today’s hyperconnected world. Social media provides a platform for people to share stories and opinions, and influential people, especially
+athletes, have considerable sway over large segments of the population. Additionally, since the NBA is a star-driven league due to its small team size and worldwide recognition, social media presence is significant for basketball players. The original creator of our Kaggle dataset, UC Davis and Northwestern professor Noah Gift, conducted analyses to determine which factors relating to basketball success social media and
+internet popularity could accurately predict. He searched for correlation between those factors and a number of response variables, including arena attendance, endorsements, salary, and NBA performance. Our team was fascinated by the statistician’s conclusions, but we wanted to take the reverse approach and determine which factors (relating to basketball success) can predict the social media popularity that he claims is so important.
 
 Our dataset includes on-court performance data for NBA players in the 2016-2017 season,
-along with their salary and Twitter engagement. Because we are examining the relationship between player statistics and the number of Twitter followers, we decided to only consider players who had a Twitter account, by filtering for values where TWITTER_HANDLE is not 0 (NA). After filtering, we had 95 observations (we later removed one more observation because it influenced the regression line, leaving us with 94). Twitter followers was our response variable, and we chose to include 16 explanatory variables: player name, player age, team name abbreviation, win percentage, offensive rating, defensive rating, field goals made, field goals attempted, assist to turnover ratio, rebound percentage, usage percentage, player impact factor (a measure of the impact the player has on games), salary in millions of dollars, whether they were active on Twitter last year, and points scored per game.
+along with their salary and Twitter engagement. Because we are examining the relationship between player statistics and the number of Twitter followers, we decided to only consider players who had a Twitter accounts. After filtering out these players, we had 95 observations (we later removed one more observation because it influenced the regression line, leaving us with 94). The number of Twitter followers was our response variable, and we chose to include 15 explanatory variables in the actual analysis (excluding Twitter handles which were used to prepare the data): player name, player age, team name abbreviation, win percentage, offensive rating, defensive rating, field goals made, field goals attempted, assists-to-turnovers ratio, rebound percentage, usage percentage, player impact factor (a measure of the impact the player has on games), salary (in millions of dollars), whether they were active on Twitter last year, and points scored per game.
 
-A few intereting/ important points from our exploratory data analysis will be shown here, but the complete EDA can be found in additional analysis. 
+A few interesting/important points from our exploratory data analysis will be shown here, but the complete EDA can be found in additional analysis. 
 
 The distribution of Twitter follower count is shown here: 
 
@@ -78,44 +67,37 @@ ggplot(data = nba_social_power_mod,
        title = "Distribution of Twitter Follower Counts")
 ```
 
-From the histogram, we can see that the distribution of Twitter follower counts is extremely right-skewed. The number of Twitter followers ranges from .002 million to 37 million, with a mean of 1.6 million and a median of.246 million. There are two obvious outliers: Kevin Durant, with 16.2 million followers, and LeBron James, with 37 million followers. 
+From the histogram, we can see that the distribution of Twitter follower counts is extremely right-skewed. The number of Twitter followers ranges from 2,000 to 37 million, with a mean of 1.6 million and a median of 246,000. There are two obvious outliers: Kevin Durant, with 16.2 million followers, and LeBron James, with 37 million followers. 
 
-Now, I'll include several of the bivariate plots that showed particularly interesting or stronger correlations between the explanatory variable and the response. Below, we can see scatterplots displaying the relationships between player salaries and Twitter follower count, average points scored in a game and Twitter follower count, and player impact factor and Twitter follower count. 
+Now, we'll include several of the bivariate plots that showed particularly interesting or stronger correlations between the explanatory variable and the response. Below, we can see scatterplots displaying the relationships between player salaries and Twitter follower count, average points scored in a game and Twitter follower count, and player impact factor and Twitter follower count. 
 
 ```{r}
 p1 <- ggplot(nba_social_power_mod, aes(x = SALARY_MILLIONS, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
   geom_point() + 
-  labs(title = "Player Salaries vs Twitter Count",
+  labs(title = "Player Salaries vs. Twitter Count",
        x = "Salary, in Millions of Dollars",
        y = "Twitter Follower Count, Millions")
 
 p2 <- ggplot(nba_social_power_mod,
        aes(x = PTS, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
   geom_point() + 
-  labs(title = "Avg. Points Scored vs Twitter Count",
+  labs(title = "Avg. Points Scored vs. Twitter Count",
        x = "Avg. Points Scored",
        y = "Twitter Follower Count, Millions")
 
 p3 <- ggplot(nba_social_power_mod, 
        aes(x = PIE, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
   geom_point() + 
-  labs(title = "Player Impact Factor vs Twitter Count",
-       x = "Player Impact Factor",
+  labs(title = "PIE vs. Twitter Count",
+       x = "Player Impact Factor (PIE)",
        y = "Twitter Follower Count, Millions")
 ```
 
 ```{r}
-p1 + p2 + p3 + plot_layout (ncol = 2)
+p1 + p2 + p3 + plot_layout (ncol = 1)
 ```
 
 These were three of the bivariate relationships that appeared to be particularly telling about what the model would look like; all three show weak positive correlations between the explanatory and response variables. None of the bivariate plots showed a strong or very linear relationship between the explanatory variable and Twitter follower count. 
-
-use patchwork for plots
-remember no variable names in narrative (use actual terms)
-added FGM and FGA (field goals made/attempted)
-removed NETRATING
-
-
 
 ### Section 2: Regression Analysis
 
@@ -154,9 +136,9 @@ However, as a result of this decision, the model coefficients changed considerab
 
 Based on the AIC and adjusted R-squared values, the model with all five terms minimized AIC and maximized adjusted R-squared. Therefore, we chose to move forward with the model which includes mean-centered salary, mean-centered win percentage, mean-centered age, whether the player had an active Twitter account in 2015-2016, and the interaction between mean-centered salary and mean-centered win percentage.
 
-#### Final Model and Model Fit Statistics
+#### Model and Relevant Fit Statistics (Prior to Assumptions)
 
-Thus, our final model is:
+Thus, our model is:
 
 ```{r final-model}
 nba_social_power_mod2 <- nba_social_power_mod %>%
@@ -181,7 +163,7 @@ glance(m_final)$r.squared
 glance(m_final)$adj.r.squared
 ```
 
-The proportion of the variation in the number of Twitter followers (in millions) explained by the regression model is roughly 35.5%. Although this might suggest the model fit is relatively poor, it is important to remember we have removed many explanatory variables from the model so that predominantly significant variables remain (and R-squared increases as more explanatory variables are included). Since the adjusted R-squared value is close to the R-squared value, we conclude the variables in the model are significant in understanding variation in the number of Twitter followers (in millions).
+The proportion of the variation in the number of Twitter followers (in millions) explained by the regression model is roughly 35.5%. Although this might suggest the model fit is relatively poor, it is important to remember we have removed many explanatory variables from the model so that predominantly significant variables remain (and R-squared increases as more explanatory variables are included). Since the adjusted R-squared value is close to the R-squared value, we conclude the variables in the model are significant in understanding the variation in the number of Twitter followers (in millions).
 
 #### Discussion of Assumptions
 
@@ -189,7 +171,7 @@ Next, we checked the linearity, constant variance, normality, and independence a
 
 When we checked the standardized residuals vs. predicted values, we found that our model violated constant variance because the height of the cloud of points varied as you move from left to right. Points were clustered at the very left, but they were sparser as you moved along the graph. Therefore, constant variance was not satisfied. Therefore, because constant variance is not satisfied, we make some adjustments to our model. For constant variance, we can log-transform the response variable because our standardized residuals vs. predicted values violated constant variance.
 
-After log-transforming `TWITTER_FOLLOWER_COUNT_MILLIONS`, we discovered thatthe interaction effect `w_pctCent` * `salary_millionsCent` and `ageCent` have p-values that are very large and > 0.05, so we removed them from our model. We will attempt to see if the log transformation of our response variable and removal of insignificant predictors are enough to support our assumptions.
+After log-transforming the response (the number of Twitter followers, in millions), we discovered the interaction between mean-centered salary and mean-centered win percentage and mean-centered age had very large p-values (> 0.05), so we removed them from our model. We will attempt to see if the log transformation of our response variable and removal of insignificant predictors are enough to support our assumptions.
 
 ```{r}
 nba_social_power_mod3 <- nba_social_power_mod2 %>%
@@ -202,9 +184,9 @@ m_final_adjust2 <- lm(TWITTER_FOLLOWER_COUNT_MILLIONS_LOG ~
                data = nba_social_power_mod3)
 ```
 
-First, we will check for linearity and whether the response variable has a linear relationship with the predictor variables in the model. We will check the plot of standardized residuals vs. predicted values:
+First, we checked for linearity (i.e. whether the response variable had a linear relationship with the predictor variables in the model) by plotting the standardized residuals vs. predicted values:
 
-```{r}
+```{r fig.width= 4, fig.height = 4}
 m_final_adj_aug <- augment(m_final_adjust2)
 ggplot(data = m_final_adj_aug, aes(x = .fitted, y = .std.resid)) +
   geom_point(alpha = 0.5) + 
@@ -216,36 +198,38 @@ ggplot(data = m_final_adj_aug, aes(x = .fitted, y = .std.resid)) +
 
 When observing for constant variance, the height of the cloud of points seems to be constant as you move from left to right. Therefore, constant variance is satisfied.
 
-There is no obvious pattern, and the shape of the graph seems to be linear. Hence, this plot presents no issues with the linearity assumption. 
+There is no obvious pattern in the plot of standardized residuals vs. predicted values. Hence, this plot presents no issues with the linearity assumption. 
 
-Next, we will observe the plot of residuals vs. predictors: 
+Next, we individually assess the plots of standardized residuals vs. predictors: 
 
 ```{r}
-ggplot(data = m_final_adj_aug, aes(x = salary_millionsCent, y = .std.resid)) +
+p1 <- ggplot(data = m_final_adj_aug, aes(x = salary_millionsCent, y = .std.resid)) +
   geom_point(alpha = 0.5) + 
   geom_hline(yintercept = 0, color = "red") +
   labs(x = "Salary (Millions)", 
        y = "Standardized Residuals", 
-       title = "Standardized Residuals vs. Salary (Millions)")
+       title = "Standardized Residuals vs. Salary")
 
-ggplot(data = m_final_adj_aug, aes(x = w_pctCent, y = .std.resid)) +
+p2 <- ggplot(data = m_final_adj_aug, aes(x = w_pctCent, y = .std.resid)) +
   geom_point(alpha = 0.5) + 
   geom_hline(yintercept = 0, color = "red") +
   labs(x = "Percentage of Games Played Won", 
        y = "Standardized Residuals", 
-       title = "Standardized Residuals vs. Percentage of Games Played Won")
+       title = "Standardized Residuals vs. Win Percentage")
 
-ggplot(data = m_final_adj_aug, aes(x = active_twitter_lyear, y = .std.resid)) +
+p3 <- ggplot(data = m_final_adj_aug, aes(x = active_twitter_lyear, y = .std.resid)) +
   geom_boxplot(alpha = 0.5) + 
   geom_hline(yintercept = 0, color = "red") +
   labs(x = "Whether The Player Had An Active Twitter Account In 2015-2016", 
        y = "Standardized Residuals", 
        title = "Standardized Residuals vs. Having An Active Twitter Account Last Year")
+
+p1 + p2 + p3 + plot_layout (ncol = 1)
 ```
 
-There is no distinguishable pattern in any of the plots because there are no discernible curves. The boxplot also shows little change from players with active twitter accounts and those who don't because they both have average standardized residuals around 0. Therefore, we satisfy linearity.
+There is no distinguishable pattern in any of the plots because there are no discernible curves. The boxplot also shows little difference in the median standardized residuals between players with active Twitter accounts in 2015-2016 and those without active Twitter accounts in the previous season (both roughly 0). Therefore, linearity seems to be satisfied.
 
-Next, we will check for the normality assumption by creating a histogram of the residuals and a normal QQ-plot of the residuals.
+Next, we will check for the normality assumption by creating a histogram of the standardized residuals and a normal QQ-plot of the residuals:
 
 ```{r}
 nba_social_power_mod3 <- nba_social_power_mod3 %>%
@@ -254,22 +238,25 @@ nba_social_power_mod3 <- nba_social_power_mod3 %>%
 ```
 
 ```{r}
-ggplot(data = nba_social_power_mod3, mapping = aes(x = std_resid)) + geom_histogram() + labs(title = "Distribution of Standardized Residuals",
+p1 <- ggplot(data = nba_social_power_mod3, mapping = aes(x = std_resid)) + geom_histogram() + labs(title = "Distribution of Standardized Residuals",
                                                                                          x = "Standardized Residuals",
                                                                                          y = "Count")
-ggplot(data = nba_social_power_mod3, mapping = aes(sample = std_resid)) +
+
+p2 <- ggplot(data = nba_social_power_mod3, mapping = aes(sample = std_resid)) +
   stat_qq() +
   stat_qq_line() +
   labs(title = "QQ Plot")
+
+p1 + p2 + plot_layout (ncol = 1)
 ```
 
-Normality is not supported because the histogram of residuals is not normal and is now slightly left skewed because the tail of the distribution is longer on the left side of the graph. Points in the QQ plot also don't fall along the diagonal line. Although the histogram is left skewed and the Normal QQ-plot doesn't fall along a diagonal line, most inference methods for regression are robust to some departures from normality, so we will continue with our analysis and assume normality is satisfied.
+Normality is not supported because the histogram of residuals is not perfectly normal and is now slightly right skewed. Points in the QQ plot also don't fall exactly along the diagonal line. Although the histogram is skewed and the Normal QQ-plot doesn't fall along a diagonal line, most inference methods for regression are robust to some departures from normality, so we will continue with our analysis and assume normality is satisfied.
 
 Independence is also satisfied because data was not taken over time, so we know there is no temporal correlation. There is also no spatial correlation because data was not taken in space. There is also no purposeful order to how the dataset was collected according to Kaggle, so there is no structure/order to the dataset according to observation number. The number of Twitter followers of one player will not affect the number of Twitter followers of another player. Therefore, independence is satisfied.
 
-Linearity, constant variance, normality, and independence are all satisfied in this model.
+In sum, linearity, constant variance, normality, and independence are all reasonably satisfied in this model.
 
-Lastly, we will also check for multicollinearity in our model. If two or more predictor variables are highly correlated in our model, our regression may change eratically in response to small changes in our data.We will check the variance inflation factor (VIF) for every predictor variable to check for concerns with multicollinearity:
+Lastly, we will also check for multicollinearity in our model. If two or more predictor variables are highly correlated in our model, our regression may change eratically in response to small changes in our data. We will check the variance inflation factor (VIF) for every predictor variable to check for concerns with multicollinearity:
 
 ```{r vif}
 tidy(vif(m_final_adjust2))
@@ -277,16 +264,23 @@ tidy(vif(m_final_adjust2))
 
 None of the variables have VIFs greater than or equal to 10, so there are no issues with multicollinearity.
 
-Our final model output is:
+### Final Model and Relevant Fit Statistics
 
-```{r}
+So, our revised final model is:
+
+```{r revised-final-model}
 tidy(m_final_adjust2, conf.int = TRUE) %>%
   kable(format = "markdown", digits = 3)
 ```
 
-`log(TWITTER_FOLLOWER_COUNT_MILLIONS)`-hat = -3.696 + 0.142 * `salary_millionsCent` + 2.538 * `w_pctCent` + 2.404 * `active_twitter_lyear1`.
+To get a better sense of the model fit, we will calculate the R-squared and adjusted R-squared values for this revised model:
 
-The p-values for each of these predictor variables are all < 0.05, so we know each of the predictor variables is a significant predictor for our response variable.
+```{r revised-model-fit-statistics}
+glance(m_final_adjust2)$r.squared
+glance(m_final_adjust2)$adj.r.squared
+```
+
+The proportion of the variation in the number of Twitter followers (in millions) explained by the revised regression model is roughly 53.1%. Comparing this to the R-squared value from the final model prior to assumptions (approximately 0.355), we conclude our model has significantly improved (especially considering R-squared increases with more explanatory variables and this revised model actually has fewer predictors)! Since the adjusted R-squared value is close to the R-squared value, we conclude the variables in the model are significant in understanding the variation in the number of Twitter followers (in millions). This corroborates the interpretation of the p-values: the p-values for each of the predictor variables are less than 0.05, so we conclude these variables are indeed significant predictors of our response.
 
 ### Section 3: Discussion
 
@@ -360,11 +354,11 @@ All in all, we completed the analysis with 94 observations, which is a sufficien
 
 ### Section 6: Additional Work
 
-
 ### Complete EDA: 
+
 #### Univariate
 
-First, we will do univariate EDA on the dataset. Player name will be used to refer to observations in our dataset, but since each player name is distinct we do not need to do EDA on the `PLAYER_NAME` variable. 
+First, we will do univariate EDA on the dataset. Player name will be used to refer to observations in our dataset, but since each player name is distinct we do not need to do EDA on this variable. 
 
 Here, we'll look into players' salaries, in millions of dollars:
 
@@ -393,7 +387,7 @@ nba_social_power_mod %>%
 As we can see from the histogram, the distribution of salaries is somewhat right-skewed, with most of the players making less than 20 million dollars a year. The mean salary is 11.3 million dollars a year. The player who earns the most, at 30.96 million dollars per year, is LeBron James (LeBron could be an influential point, so we will revisit this after the model selection phase). On the other hand, Russell Westbrook, Kevin Durant, Mike Conley, DeMar DeRozan, and Al Horford each earn 26.54 million dollars per year.
 
 
-Here, we'll look into the response variable, `TWITTER_FOLLOWER_COUNT_MILLIONS`:
+Here, we'll look into the response variable, the number of Twitter followers (in millions):
 
 ```{r}
 ggplot(data = nba_social_power_mod,
@@ -418,7 +412,6 @@ nba_social_power_mod %>%
 
 From the histogram, we can see that the distribution of Twitter follower counts is extremely right-skewed. The number of Twitter followers ranges from .002 million to 37 million, with a mean of 1.6 million and a median of.246 million. There are two obvious outliers: Kevin Durant, with 16.2 million followers, and LeBron James, with 37 million followers. 
 
-
 Here, we'll take a look at how many players there are from each team in the dataset: 
 
 ```{r}
@@ -429,7 +422,7 @@ nba_social_power_mod %>%
 
 As we can see from the output, there is only one team that is represented just once in the dataset: SAC, the Sacramento Kings. The greatest number of times teams are represented in the dataset is 5. GSW (Golden State Warriors), LAC (Los Angeles Clippers), and SAS (San Antonio Spurs) are all represented 5 times. 
 
-Now, we'll explore the distribution of the `AGE` variable in the dataset:
+Now, we'll explore the distribution of player age in the dataset:
 
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= AGE)) + 
@@ -448,7 +441,7 @@ nba_social_power_mod %>%
 
 As we can see from the histogram, age is somewhat normally distributed in the dataset, with a mode around 27 and a surprisingly low number of 30-year olds. The mean age, 27.39, and median age, 27, are very close together, indicating little skew. The lowest age is 20 and the highest is 39. The oldest player by far, at 39, is Dirk Nowitzki.
 
-Now, we'll examine the distribution of win percent, `W_PCT`:
+Now, we'll examine the distribution of win percentage:
 
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= W_PCT)) + 
@@ -463,7 +456,7 @@ nba_social_power_mod %>%
 
 As we can see from the histogram, win percent is also somewhat normally distributed, with a mode around 50 percent. The minimum win percent in the dataset is 0, while the maximum is 82.4. The median of 50.7 is very similar to the mean of 51%. The fact that the mean and median win percents in the dataset fall so close to 50% indicate good randomness in the dataset, b/c the mean and median win percents for all nba players are 50%. 
 
-Next, we'll look at the distributions for offensive rating, `OFF_RATING` and defensive rating `DEF_RATING`:
+Next, we'll look at the distributions for offensive rating and defensive rating:
 
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= OFF_RATING)) + 
@@ -489,7 +482,7 @@ nba_social_power_mod %>%
 
 Defensive rating, offensive rating, and net rating do not stray far from normally distributed. Offensive rating varies from 86.8	to 124.2, with a median of 107.6. Defensive rating varies from 93 to	118.3, with a median of 106. Thus, the dataset contains a larger range in terms of offensive rating, and the median is also slightly higher for defensive rated players. The distribution of net rating has multiple nearly equal modes around -2 to -3 and around 1 and 3. The median net rating is 1.5, and the net ratings in the dataset vary from -17.2 to 18.7.
 
-Next, we'll look at the distribution of the assist-to-turnovers ratio, `AST_RATIO`:
+Next, we'll look at the distribution of the assists-to-turnovers ratio:
 
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= AST_RATIO)) + 
@@ -510,9 +503,9 @@ nba_social_power_mod %>%
   head(2)
 ```
 
-As we can see from the histogram, the assist-turnover ratio is very right skewed. The mode is at around 10, even though the median is at 15, and the mean is 17.12526, all of which are summary statistics that emphasize the right skew. This means that while most players in the dataset had a very high assist-turnover ratio (meaning they had many more assists than turnovers), there is a wider variation among players with a high ratio and the players with lower ratios are concentrated around a few numbers. The dataset minimum ratio of 4 means that there were no players with more turnovers than assists. Notably, this is the first variable we've examined so far with a significantly non-normal distribution. The two players with very high assist-turnover ratios, 51.5 and 41.3, are Jarnell Stokes and Ricky Rubio, respectively. 
+As we can see from the histogram, the assists-to-turnovers ratio is very right skewed. The mode is at around 10, even though the median is at 15, and the mean is 17.12526, all of which are summary statistics that emphasize the right skew. This means that while most players in the dataset had a very high assist-turnover ratio (meaning they had many more assists than turnovers), there is a wider variation among players with a high ratio and the players with lower ratios are concentrated around a few numbers. The dataset minimum ratio of 4 means that there were no players with more turnovers than assists. Notably, this is the first variable we've examined so far with a significantly non-normal distribution. The two players with very high assist-turnover ratios, 51.5 and 41.3, are Jarnell Stokes and Ricky Rubio, respectively. 
 
-Next, we'll examine the variation of `REB_PCT`, the percent of rebounds a player makes:
+Next, we'll examine the variation in the percent of rebounds a player makes:
 
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= REB_PCT)) + 
@@ -531,7 +524,7 @@ nba_social_power_mod %>%
 
 The distribution of rebound percentage has a minimum of 0.045	and a maximum of 0.252. The distribution is not very skewed one way or another, as supported by the similar mean of .133 and median of .127. However, the distribution is not normal in that it does not resemble a bell curve; with exceptions, the data is somewhat evenly distributed from the minimum to near the maximum (although there is some trail-off towards the right side of the distribution). This non-normal spread is likely partially an indication of the fact that the dataset contains both offensive and defensive players, because whether a player is on offense or defense has a significant effect on their rebound percentage.
 
-Next, we'll look at `USG_PCT`, usage percentage, which is an estimate of how often a player makes team plays:
+Next, we'll look at usage percentage, which is an estimate of how often a player makes team plays:
 
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= USG_PCT)) + 
@@ -554,7 +547,7 @@ nba_social_power_mod %>%
 
 The distribution of usage percentage, with a minimum of .101 and a maximum of .408, is fairly normally distributed. The mean, .238, and median, .242, are similar. The fairly wide spread may indicate that the dataset contains a decent sampling of players- some 'star player' types and others that are not the centerpieces of their teams.The maximum of .408, while perhaps not quite an outlier, is separated from most of the other points; this usage percentage belongs to Russell Westbrook.
 
-Next, we'll examine `PIE`, player impact factor, a statistic roughly measuring a player's impact on the games that they play that's used by nba.com:
+Next, we'll examine player impact factor (PIE), a statistic roughly measuring a player's impact on the games that they play that's used by nba.com:
 
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= PIE)) + 
@@ -598,7 +591,7 @@ nba_social_power_mod %>%
 
 As we can see from the histogram, the distribution of average points scored is slightly normal, with some obvious departures from normality. The median number of points scored per game is 14.6, and the mean is 15.28232. The maximum is 31.6, but this does not seem to be an obvious outlier. 
 
-Next, we'll examine the variable `ACTIVE_TWITTER_LAST_YEAR`, which tells us whether or not each player posted on Twitter the year before the data was collected:
+Next, we'll examine summary statistics about players' Twitter activity in 2015-2016:
 
 ```{r}
 nba_social_power_mod <- nba_social_power_mod %>%
@@ -610,7 +603,7 @@ nba_social_power_mod %>%
 
 Out of the 95 players in our modified dataset, 2 were not active on Twitter the year before the data was collected and and 93 were. 
 
-Next, we'll examine the variable `FGA`, field goals attempted. 
+Next, we'll examine the distribution of field goals attempted:
 
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= FGA)) + 
@@ -635,7 +628,7 @@ nba_social_power_mod %>%
 
 The distribution of field goals attempted is non-normal but does not have a particular skew in either direction. Since this is a cumulative measure, it likely largely depends on a player's position and the amount of playing time they have had in NBA games. The outlier, at 1941 field goals attempted, is Russell Westbrook. This variable varies between 1 and 1941 field goals attempted, with a median of 785 and a mean of 785.27. 
 
-Now, I'll look at the distribution of field goals made. 
+Now, we'll look at the distribution of field goals made:
 
 ```{r}
 ggplot(data = nba_social_power_mod, aes(x= FGM)) + 
@@ -664,7 +657,7 @@ The distribution of field goals made is somewhat normal, with a mean of 379.8 an
 
 Next, we will do bivariate EDA, looking into the relationships of some of the predictor variables with the response variables. We won't do bivariate EDA on player name, Twitter handle, age, team abbreviation, or whether the players were active on Twitter last year, instead focusing on terms we believe may play a more nuanced / important role in predicting Twitter followers.
 
-First, we'll look for a relationship between win percent and Twitter followers in millions:
+First, we'll look for a relationship between win percentage and the number of Twitter followers in millions:
 
 ```{r}
 ggplot(nba_social_power_mod, aes(x = W_PCT, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
@@ -689,7 +682,7 @@ ggplot(nba_social_power_mod,
 
 There appears to be a very weak positive correlation between usage percentage and Twitter follower count; players with a high usage percentage tend to have more Twitter followers, on average, than those with a lower usage percentage. 
 
-Next, we'll examine whether there is a relationship between player impact factor and Twitter follower count:
+Next, we'll examine whether there is a relationship between player impact factor (PIE) and Twitter follower count:
 
 ```{r}
 ggplot(nba_social_power_mod, 
@@ -715,7 +708,7 @@ ggplot(nba_social_power_mod,
 
 There appears to be a weak positive correlation between average points scored and Twitter follower count; players with higher avg. points scored tend to have more Twitter followers than those with lower avg. points scored. 
 
-Finally, we'll look for a relationship between player salaries and points scored:
+Next, we'll look for a relationship between player salaries and points scored:
 
 ```{r}
 ggplot(nba_social_power_mod, aes(x = SALARY_MILLIONS, y = TWITTER_FOLLOWER_COUNT_MILLIONS)) + 
@@ -727,7 +720,7 @@ ggplot(nba_social_power_mod, aes(x = SALARY_MILLIONS, y = TWITTER_FOLLOWER_COUNT
 
 There appears to be a positive correlation between salary and Twitter follower count; the players with higher salaries tend to have higher Twitter follower counts. 
 
-Here, we'll look at the relationship between assist-to-turnovers ratio and Twitter follower count:
+Here, we'll look at the relationship between assists-to-turnovers ratio and Twitter follower count:
 
 ```{r}
 ggplot(nba_social_power_mod, 
@@ -739,7 +732,7 @@ ggplot(nba_social_power_mod,
        y = "Twitter Follower Count, in Millions")
 ```
 
-There is no evident relationship between assist-turnover ratio and Twitter follower count. 
+There is no evident relationship between assists-to-turnovers ratio and Twitter follower count. 
 
 Next, we'll examine whether there is a relationship between rebound percentage and Twitter follower count:
 
@@ -755,7 +748,7 @@ ggplot(nba_social_power_mod,
 
 There is no evident relationship between rebound percentage and Twitter follower count. 
 
-Now, I'll look for a relationship between field goals attempted and Twitter follower count as well as between field goals made and Twitter follower count. 
+Now, we'll look for a relationship between field goals attempted and Twitter follower count as well as between field goals made and Twitter follower count:
 
 ```{r}
 p1 <- ggplot(nba_social_power_mod, 
@@ -779,7 +772,6 @@ p2 <- ggplot(nba_social_power_mod,
 p1 + p2
 ```
 
-
 ### Multivariate Data Analysis
 
 Now, we'll do some multivariate analysis. In this section, we are looking for predictor variables that may affect the way other predictor variables relate to the response variable. 
@@ -800,13 +792,13 @@ ggplot(data = nba_social_power_mod1,
            y = TWITTER_FOLLOWER_COUNT_MILLIONS,
            color = PTS_CAT)) +
          geom_point() + 
-  labs(x = "Player Impact Factor",
+  labs(x = "Player Impact Factor (PIE)",
        y= "Twitter Follower Count, in Millions", 
        color = "Avg. Points Scored per Game",
-       title = "Relationship Between Pts Scored, Twitter Followers, and Player Impact Factor")
+       title = "Relationship Between Pts Scored, Twitter Followers, and PIE")
 ```
 
-As we can see from the above color-coded boxplot, many of the players with the most points scored have higher player impact factors, and player impact factor values have a weak positive correlation with the Twitter follower count. This could be an opportunity for an interaction term. 
+As we can see from the above color-coded scatterplot, many of the players with the most points scored have higher player impact factors, and player impact factor values have a weak positive correlation with the Twitter follower count. This could be an opportunity for an interaction term. 
 
 Next, we'll try to determine whether win percentage affects the way salary relates to the Twitter follower count:
 
@@ -832,8 +824,6 @@ ggplot(data = nba_social_power_mod1,
 ```
 
 As we can see from the scatterplot, players with higher win percentages tend to be paid more, and high salary has a weak positive correlation with the Twitter follower count. This could also be an opportunity for an interaction term. 
-
-
 
 ### Initial Model
 
@@ -1139,7 +1129,7 @@ Based on the AIC and adjusted R-squared values displayed above, the model with a
 
 As we can see from the dotplots above, both field goals made and field goals attempted appear to have weak positive relationships with Twitter follower counts. 
 
-In sum, there appear to be weak to moderate positive correlations between Twitter follower count and win percentage, usage percentage, player impact factor, avg. points per game, field goals made, field goals attempted, and player salaries; there is no obvious relationship between Twitter follower count and assist-to-turnover ratio or rebound percentage.
+In sum, there appear to be weak to moderate positive correlations between Twitter follower count and win percentage, usage percentage, player impact factor, avg. points per game, field goals made, field goals attempted, and player salaries; there is no obvious relationship between Twitter follower count and assists-to-turnovers  ratio or rebound percentage.
 
 
 There may have been some slight linearity issues with our current model. Though there is not a discernible pattern in our residuals plot for salary, there was slight curvature, so we were interested to see if we could fix this with a log-transformation:
