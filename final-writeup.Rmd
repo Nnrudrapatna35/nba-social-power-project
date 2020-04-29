@@ -297,15 +297,15 @@ nba_social_power_mod2 %>%
             mean_followers = mean(TWITTER_FOLLOWER_COUNT_MILLIONS))
 ```
 
-Again, the final model is displayed above. Its equation is: `log(TWITTER_FOLLOWER_COUNT_MILLIONS)`-hat = -3.696 + 0.142 * `salary_millionsCent` + 2.538 * `w_pctCent` + 2.404*`active_twitter_lyear1`
+Again, the equation for the final model is `log(TWITTER_FOLLOWER_COUNT_MILLIONS)`-hat = -1.292 + 0.142 * `salary_millionsCent` + 2.538 * `w_pctCent` - 2.404*`active_twitter_lyear1`
 
-The intercept of the model is -3.696, which means that a player with a salary of 11.1 million dollars (average salary) and win percentage of 0.511 (average win percentage), and no Twitter account during the 2015-16 season are expected to have exp(-3.696) million, or approximately 24,822.619, Twitter followers.
+The intercept of the model is -1.292, so a player with an average salary of 11.1 million dollars, an average win percentage of 0.510 (average win percentage), and a Twitter account during the 2015-16 season are expected to have exp(-1.292) million, or approximately 274,721, Twitter followers.
 
 The coefficient of `salary_millionsCent` is 0.142, which means that, for every 1 million increase in player salary, a player's Twitter followers are expected to multiply by a factor of exp(0.142) = 1.153, holding all else constant.
 
-The coefficient of `w_pctCent` is 2.538. This coefficient is misleading, as an increase of 1 in win percent is only possible if a team has 0 wins. So, this coefficient is better explained by every 0.1 increase in team win percentage, a player's Twitter followers are expected to multiply by a factor of exp(2.538) = 12.654, holding all else constant.
+The coefficient of `w_pctCent` is 2.538. This coefficient is misleading, however, as an increase of 1 in win percent is equivalent to a 100% increase, which is only possible if a team has 0 wins. So, this coefficient is better explained by every 0.1 increase in team win percentage, a player's Twitter followers are expected to multiply by a factor of exp(0.2538) = 1.289, holding all else constant.
 
-The coefficient of `active_twitter_lyear1` is 2.404, so if an NBA player had a Twitter account during the 2015-16 season, his Twitter followers are expected to multiply by a factor of exp(2.404) = 11.067, holding all else constant.
+The coefficient of `active_twitter_lyear1` is -2.404, so if an NBA player had a Twitter account during the 2015-16 season, his Twitter followers are expected to multiply by a factor of exp(2.404) = 11.067, holding all else constant.
 
 Interpreting coefficients is not particularly important, however, as our objective is to predict Twitter followers.
 
@@ -379,11 +379,15 @@ According to our dataset, five players were missing Twitter handles. These value
 
 One other modification we made to our original dataset was removing LeBron James. We decided, based on Cook's distance, standardized residuals, and leverage, LeBron was an influential point with a significant effect on the regression line. Because we removed LeBron, we will use standardized residuals when checking assumptions.
 
-Our model was limited by the fact that the predictor variables only came from one season, and one year of on-court statistics may not be indicative of a player's career statistics. Both salary and winning percentage can have year to year fluctuations due to changes in the NBA salary cap and the prominence of trades, respectively.
+Our model was limited by the fact that the predictor variables only came from one season, and that one year of on-court statistics may not be indicative of a player's career statistics. Both salary and winning percentage can have year to year fluctuations due to changes in the NBA salary cap and the prominence of trades, respectively.
 
-All in all, we completed the analysis with 94 observations, which is a sufficiently large sample population to build a model which can be generalized to a larger population of NBA athletes.
+All in all, we completed the analysis with 94 observations, which is a sufficiently large sample population to build a model which can be generalized to a larger population of NBA athletes. However, including more players would likely improve the predictive accuracy of our model.
 
 ### Section 5: Conclusion
+
+In conclusion, our model exhibited the ability to make decent, albeit relatively conservative predicitons. Its r-squared value was 0.531, so the proportion of variation in Twitter followers explained by the model was 53.1%. Because this r-squared value is similar to the adjusted r-squared value of 0.515, and our predictors were significant, we can conclude that on court performance statistics and salary have an impact on the number of Twitter followers for NBA players.
+
+In the future, we would like to build a model using on-court statistics from more than just one season, ideally three at minimum. Also, the inclusion of more players in the dataset would allow us to use k-fold cross validation to create a new model after splitting the observations into training and test sets. Lastly, we would like to further test our model on players outside of the dataset by testing its predictive acccuracy on a greater number of randomly selected players.  
 
 ### Section 6: Additional Work
 
