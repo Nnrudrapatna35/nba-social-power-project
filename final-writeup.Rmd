@@ -297,11 +297,11 @@ nba_social_power_mod2 %>%
 
 The intercept of the model is -1.292, so a player with an average salary of 11.1 million dollars, an average win percentage of 0.510, and a Twitter account during the 2015-16 season is expected (median) to have exp(-1.292) million, or approximately 274,721 Twitter followers.
 
-The slope estimate associated with the mean-centered player salary is 0.142, which means that for every 1 million increase in player salary, the median number of Twitter followers is expected to multiply by a factor of exp(0.142) = 1.153, holding all else constant.
+The slope estimate associated with mean-centered player salary is 0.142, which means that for every 1 million increase in player salary, the median number of Twitter followers is expected to multiply by a factor of exp(0.142) = 1.153, holding all else constant.
 
-The coefficient of the mean-centered win percentage is 2.538, which means that for every 1% increase in win percentage, a player's median number of Twitter followers is expected to multiply by a factor of exp(0.2538) = 1.289, holding all else constant.
+The slope estimate associated with mean-centered win percentage is 2.538; however, due to the way win percentage is calculated, this estimate is misleading. Win percentage is computed as if it was win proportion, which means that for every 10% increase in win percentage, a player's median number of Twitter followers is expected to multiply by a factor of exp(0.2538) = 1.289, holding all else constant.
 
-The coefficient of the variable that indicates whether players were active on Twitter in the 2015-2016 is -2.404, so if an NBA player had a Twitter account during the 2015-16 season, his median number of Twitter followers is expected to multiply by a factor of exp(-2.404) = 0.786, holding all else constant.
+The slope estimate associated with the variable that indicates whether players were active on Twitter in the 2015-2016 is -2.404, so if an NBA player had a Twitter account during the 2015-16 season, his median number of Twitter followers is expected to multiply by a factor of exp(-2.404) = 0.786, holding all else constant. Of course, it is important to note that the vast majority of players in the dataset were indeed active on Twitter in 2015-2016.
 
 Our objective in creating the model was predicting Twitter follower counts, so we did not prioritize ensuring that the interpretations of coefficients made sense. 
 
@@ -314,7 +314,7 @@ Salary data was taken from ESPN (www.espn.com), and win percentage data was calc
 Derrick Rose:
 
 ```{r}
-derrick_rose <- tibble(salary_millionsCent = 21.3-11.09577, w_pctCent = 0.406 - 0.5095213, active_twitter_lyear = "1")
+derrick_rose <- tibble(salary_millionsCent = 21.3 - 11.09577, w_pctCent = 0.406 - 0.5095213, active_twitter_lyear = "1")
 predict(m_final_adjust2, newdata = derrick_rose, interval = "prediction")
 ```
 
@@ -336,7 +336,7 @@ boris_diaw <- tibble(salary_millionsCent = 7-11.09577, w_pctCent = 0.616 - 0.509
 predict(m_final_adjust2, newdata = boris_diaw, interval = "prediction")
 ```
 
-From his 7 million dollar salary and 61.6% winning percentage, Boris Diaw is expected to have exp(-1.603) = 201,316 Twitter followers. He actually had 462,000 Twitter followers (gross underestimate). Diaw's relatively low salary of 7 million certainly contributed to this underprediction. Also, Diaw was previously an NBA champion, which may further explain the underprediction.
+From his 7 million dollar salary and 61.6% winning percentage, Boris Diaw is expected to have exp(-1.603) = 201,316 Twitter followers. He actually had 462,000 Twitter followers (gross underestimate). Diaw's relatively low salary of 7 million certainly contributed to this underprediction. Also, Diaw was previously an NBA champion and he is of French origin (international appeal), which may further explain the underprediction.
 
 Tony Parker:
 
@@ -371,6 +371,8 @@ It is important to note the dates at which these Twitter follower counts were re
 
 ### Section 4: Limitations
 
+We should have recoded win percentage so that it more accurately reflects how it is computed. For instance, we could have relabeled win percentage as win proportion to better reflect that it is calculated as a win-loss ratio. This way, our interpretations may have been more intuitive; however, as our objective was prediction, we did not think it was necessary to do so in this analysis.
+
 According to our dataset, five players were missing Twitter handles. These values are missing at random because the missingness depends on other observed variables (e.g. the person's social media usage). Hence, the probability that a variable is missing depends on information not included in our dataset. We decided to remove these five players from our dataset because there were very few observations with missing values relative to the sample size (after removing these players, we still had 95 observations). We also determined, since the observations with missingness are random, the resulting analysis will not be biased because the missingness does not differ systematically from the complete observations. In addition, since our objective is predicting the number of Twitter followers for NBA athletes, players without Twitter accounts are outside of the model's predictive capabilities and hence do not belong in the dataset. One other modification we made to our original dataset was removing LeBron James. We decided, based on Cook's distance, standardized residuals, and leverage, LeBron was an influential point with a significant effect on the regression line. Our model was limited by the fact that the predictor variables only came from one season, and that one year of on-court statistics may not be indicative of a player's career statistics. Both salary and win percentage for individuals fluctuate from year to year because of changes in the NBA salary cap and player trades between teams, respectively. The NBA salary cap limits how much each team can pay players over a certain year. 
 
 To improve our model, we could use a nested F-test to determine whether interactions between mean-centered salary and mean-centered win percentage, as well as the interactions between mean-centered player impact factor and mean-centered points scored were significant rather than relying on backwards selection with AIC and adjusted R squared as the selection criteria. One other consideration might be to revisit the full Kaggle dataset and randomly select a different set of explanatory variables, as there were 63 choices. 
@@ -380,6 +382,10 @@ In order to make significant progress, we would have to add additional observati
 ### Section 5: Conclusion
 
 In conclusion, our model exhibited the ability to make decent, albeit relatively conservative predictions of Twitter follower count based on mean-centered salary, mean-centered win percentage, and whether the player had an active Twitter account in the previous season. Its R-squared value was 0.531, so the proportion of variation in Twitter followers explained by the model was 53.1%. Because this R-squared value is similar to the adjusted R-squared value of 0.515, and our predictors were significant, we can conclude that on-court performance statistics and salary have an impact on the number of Twitter followers for NBA players.
+
+From our test cases (six players outside the dataset), we noticed that the certain factors of player popularity were not accounted for in the model -- international appeal, prior success (i.e. previously winning an NBA championship), player trades, contract extensions, and playing for large-market teams as opposed to small-market teams. Thus, in future analyses, we could try to incorporate some of these variables to improve the predictive accuracy of our model. 
+
+Overall, we noticed an interesting trend in our model's predictive capabilities. The model tended to overestimate the number of Twitter followers of higher-paid players who played on more competitive teams (based on collective win percentage). Conversely, the model tended to underestimate the number of Twitter followers of higher-paid players who played on less competitive teams. This trend is logical because higher-paid players on more competitive teams (e.g. James Harden) are also some of NBA's best players. Furthermore, we believe win percentage is one of the most factors in accurately predicting the number of Twitter followers for NBA athletes.
 
 To stimulate interesting discussion, we could attempt to use social media power/social media popularity to predict on-court statistics, mirroring Professor Noah Gift's initial analysis. We could also use the data to try to predict other measures of social media popularity, like Instagram followers or Facebook page likes. 
 
